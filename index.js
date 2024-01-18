@@ -15,7 +15,7 @@ client.on("ready", () => {
 client.on("messageCreate", msg => {
     if (msg.content === "ping") {
         if (msg.member.roles.cache.has("781184561572216832")) {
-            msg.reply("admin pongg");
+            msg.reply("admin pong");
         }else{
             msg.reply("pong");
         }
