@@ -2,8 +2,8 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, Permi
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName('embed')
-		.setDescription('Command for the embed test')
+		.setName('t1setup')
+		.setDescription('Creates the checkin for tier 1')
 		.addStringOption(option =>
 			option.setName('country')
 				.setDescription('The track of this week')
@@ -129,11 +129,11 @@ module.exports = {
 
 		const embed = new EmbedBuilder()
 			.setTitle(`${title}: ${countryName}`)
-			.setColor('#09081c')
+			.setColor('#1C1A36')
 			.addFields(
-				{ name: 'Accepted:', value: acceptedMembers.join('\n') || 'None', inline: true },
-				{ name: 'Declined:', value: declinedMembers.join('\n') || 'None', inline: true },
-				{ name: 'Pending:', value: pendingMembers.join('\n') || 'None', inline: true }
+				{ name: '✅ Accepted:', value: acceptedMembers.join('\n') || 'None', inline: true },
+				{ name: '❌ Declined:', value: declinedMembers.join('\n') || 'None', inline: true },
+				{ name: '❓ Pending:', value: pendingMembers.join('\n') || 'None', inline: true }
 			);
 
 		// Creating the check-in
@@ -151,54 +151,47 @@ module.exports = {
 			// Get the embed from the message
 			const embed = message.embeds[0];
 			// Get the fields
-			const acceptedField = embed.fields.find(field => field.name === 'Accepted:');
-			const declinedField = embed.fields.find(field => field.name === 'Declined:');
-			const pendingField = embed.fields.find(field => field.name === 'Pending:');
+			// Get the fields
+			const fields = {
+				'Accepted:': embed.fields.find(field => field.name === '✅ Accepted:'),
+				'Declined:': embed.fields.find(field => field.name === '❌ Declined:'),
+				'Pending:': embed.fields.find(field => field.name === '❓ Pending:')
+			};
 
-			// Convert the field values to arrays
-			const acceptedMembers = acceptedField.value.split('\n');
-			const declinedMembers = declinedField.value.split('\n');
-			const pendingMembers = pendingField.value.split('\n');
-
-			// Find the user in the pending field and move them to the appropriate field
+			// Find the user in the fields and move them to the appropriate field
 			const userId = `<@${interaction.user.id}>`;
-			const index = pendingMembers.indexOf(userId);
-			if (index !== -1) {
-				pendingMembers.splice(index, 1);
-				if (interaction.customId === 'accept') {
-					acceptedMembers.push(userId);
-				} else if (interaction.customId === 'decline') {
-					declinedMembers.push(userId);
+			const targetField = interaction.customId === 'accept' ? 'Accepted:' : 'Declined:';
+			for (const [fieldName, field] of Object.entries(fields)) {
+				if (field.value.includes(userId)) {
+					// If the user is already in the target field, do not modify the fields or the message
+					if (fieldName === targetField) {
+						await interaction.reply({ content: `You are already in the ${fieldName} field.`, ephemeral: true });
+						return;
+					}
+					field.value = field.value.replace(userId, '').trim();
+					if (fields[targetField].value === 'None' || fields[targetField].value === '') {
+						fields[targetField].value = userId;
+					} else {
+						fields[targetField].value = `${fields[targetField].value}\n${userId}`.trim();
+					}
+					break;
 				}
 			}
 
-			// Convert the arrays back to strings
-			acceptedField.value = acceptedMembers.join('\n');
-			declinedField.value = declinedMembers.join('\n');
-			pendingField.value = pendingMembers.join('\n');
+			// Check if any field is empty and set it to 'None'
+			for (const field of Object.values(fields)) {
+				if (field.value.trim() === '') {
+					field.value = 'None';
+				} else {
+					// Replace all occurrences of double newlines with a single newline
+					field.value = field.value.replace(/\n\n/g, '\n');
+				}
+			}
 
-
-			// // Find the field that contains the text you want to edit
-			// const field = embed.fields.find(field => field.name === 'Members:');
-			// // Find the question mark emoji and replace it with a cross or a checkmark emoji
-			// field.value = field.value.replace(/.* <@(\d+)>/g, (match, userId) => {
-			//     if (interaction.customId === 'accept' && interaction.user.id === userId) {
-			//         // Replace the question mark emoji with a checkmark emoji
-			//         return `✅ <@${userId}>`;
-			//     } else if (interaction.customId === 'decline' && interaction.user.id === userId) {
-			//         // Replace the question mark emoji with a cross emoji
-			//         return `❌ <@${userId}>`;
-			//     } else {
-			//         // If the interaction was not from this user, leave the emoji as is
-			//         return match;
-			//     }
-			// });
 			// Edit the message with the new content
 			await message.edit({ embeds: [embed] });
-			// Edit the deferred reply
-			if (interaction.replied || interaction.deferred) {
-				await interaction.followUp({ content: 'Attendance updated.', ephemeral: true });
-			} else {
+			// Acknowledge the interaction
+			if (!interaction.replied && !interaction.deferred) {
 				await interaction.reply({ content: 'Attendance updated.', ephemeral: true });
 			}
 		});
