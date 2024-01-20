@@ -43,7 +43,6 @@ module.exports = {
 				.setRequired(true)
 		)
 
-
 		// Requires administrator permissions
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
@@ -80,7 +79,7 @@ module.exports = {
 			'cota': 'Texas'
 		};
 
-// Extract the country and title from the command
+		// Extract the country and title from the command
 		const countryOption = interaction.options.get('country');
 		const countryValue = countryOption.value;
 		const countryName = countryChoices[countryValue]; // Use the mapping to get the name
@@ -96,8 +95,6 @@ module.exports = {
 		// Map over the mentioned users and add an emoji before each mention
 		// Use a regular expression to match the user mentions in the message content
 		const mentionMatches = message.content.match(/<@(\d+)>/g);
-// Map over the matched user IDs to add an emoji before each mention
-		const memberMentions = mentionMatches.map(mention => `❓ ${mention}`);
 
 
 		// Create the accept and decline buttons
@@ -113,23 +110,27 @@ module.exports = {
 		const row = new ActionRowBuilder()
 			.addComponents(accept, decline);
 
-
-
-		// Confirmation of command
-		await interaction.reply({
-			content: `Tier 1 checkin complete.`,
-		});
-
-
 		// Initialize the fields
 		const acceptedMembers = [];
 		const declinedMembers = [];
 		const pendingMembers = mentionMatches.map(mention => `${mention}`);
 
+		// Calculate the date of the next Sunday at 6pm CET
+		const now = new Date();
+		const nextSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - now.getDay() || 7));
+		nextSunday.setHours(18, 0, 0, 0); // Set the time to 6pm
+		// Convert to CET (Central European Time)
+		nextSunday.setHours(nextSunday.getHours() + 1); // CET is UTC+1
 
+		// Convert the date to a Unix timestamp (seconds since the Unix Epoch)
+		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
+
+		// Add the description to the embed with Discord's timestamp formatting
 		const embed = new EmbedBuilder()
 			.setTitle(`${title}: ${countryName}`)
+			.setDescription(`<t:${unixTimestamp}:F>\nThis is <t:${unixTimestamp}:R>`)
 			.setColor('#1C1A36')
+			.setThumbnail('attachment:/img/Flag_of_Austria.svg')
 			.addFields(
 				{ name: '✅ Accepted:', value: acceptedMembers.join('\n') || 'None', inline: true },
 				{ name: '❌ Declined:', value: declinedMembers.join('\n') || 'None', inline: true },
@@ -141,6 +142,11 @@ module.exports = {
 		await checkinChannel.send({
 			embeds: [embed],
 			components: [row],
+		});
+
+		// Confirmation of command
+		await interaction.reply({
+			content: `Tier 1 checkin complete.`,
 		});
 
 		// When an interaction with the buttons occurs
@@ -165,7 +171,7 @@ module.exports = {
 				if (field.value.includes(userId)) {
 					// If the user is already in the target field, do not modify the fields or the message
 					if (fieldName === targetField) {
-						await interaction.reply({ content: `You are already in the ${fieldName} field.`, ephemeral: true });
+						await interaction.reply({ content: `You are already registered as ${fieldName}.`, ephemeral: true });
 						return;
 					}
 					field.value = field.value.replace(userId, '').trim();

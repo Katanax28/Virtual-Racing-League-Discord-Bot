@@ -1,0 +1,116 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<svg
+   xmlns:dc="http://purl.org/dc/elements/1.1/"
+   xmlns:cc="http://web.resource.org/cc/"
+   xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+   xmlns:svg="http://www.w3.org/2000/svg"
+   xmlns="http://www.w3.org/2000/svg"
+   xmlns:xlink="http://www.w3.org/1999/xlink"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   version="1.1"
+   id="china_flag_svg"
+   width="900"
+   height="600"
+   viewBox="0 0 30 20"
+   sodipodi:version="0.32"
+   inkscape:version="0.44"
+   sodipodi:docname="Flag_of_the_People's_Republic_of_China.svg"
+   sodipodi:docbase="C:\Documents and Settings\shizhao\My Documents\My Pictures">
+  <metadata
+     id="metadata1974">
+    <rdf:RDF>
+      <cc:Work
+         rdf:about="">
+        <dc:format>image/svg+xml</dc:format>
+        <dc:type
+           rdf:resource="http://purl.org/dc/dcmitype/StillImage" />
+      </cc:Work>
+    </rdf:RDF>
+  </metadata>
+  <sodipodi:namedview
+     inkscape:window-height="579"
+     inkscape:window-width="835"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     inkscape:zoom="0.62833333"
+     inkscape:cx="450"
+     inkscape:cy="300"
+     inkscape:window-x="154"
+     inkscape:window-y="203"
+     inkscape:current-layer="china_flag_svg" />
+  <desc
+     id="desc1943">Flag of the People's Republic of China</desc>
+  <defs
+     id="defs1945">
+    <g
+       id="s">
+      <g
+         id="c">
+        <path
+           id="t"
+           d="M 0,0 L 0,1 L 0.5,1 L 0,0 z "
+           transform="matrix(0.951057,0.309017,-0.309017,0.951057,0,-1)"
+           style="fill:#ffde00" />
+        <use
+           xlink:href="#t"
+           transform="scale(-1,1)"
+           id="use1950" />
+      </g>
+      <use
+         xlink:href="#c"
+         transform="rotate(72)"
+         id="use1952" />
+      <use
+         xlink:href="#c"
+         transform="rotate(-72)"
+         id="use1954" />
+      <use
+         xlink:href="#c"
+         transform="rotate(144)"
+         id="use1956" />
+      <use
+         xlink:href="#c"
+         transform="rotate(-144)"
+         id="use1958" />
+    </g>
+    <use
+       xlink:href="#s"
+       id="r"
+       transform="rotate(-90)" />
+  </defs>
+  <rect
+     width="30"
+     height="20"
+     id="rect1961"
+     x="0"
+     y="0"
+     style="fill:#de2910" />
+  <use
+     xlink:href="#s"
+     transform="translate(5,5) scale(3)"
+     id="use1963" />
+  <use
+     xlink:href="#r"
+     transform="translate(10,2) rotate(-30.963756532073521417107679840837)"
+     id="use1965" />
+  <use
+     xlink:href="#r"
+     transform="translate(12,4) rotate(-8.1301023541559787031443874409066)"
+     id="use1967" />
+  <use
+     xlink:href="#r"
+     transform="translate(12,7) rotate(15.945395900922854797657689523261)"
+     id="use1969" />
+  <use
+     xlink:href="#r"
+     transform="translate(10,9) rotate(38.659808254090090604005862335173)"
+     id="use1971" />
+</svg>
