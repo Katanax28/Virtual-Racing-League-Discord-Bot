@@ -59,18 +59,20 @@ client.on(Events.InteractionCreate, async interaction => {
 });
 
 // Old code before using slash commands
-// client.on("messageCreate", msg => {
-//     if (msg.content === "ping") {
-//         if (msg.member.roles.cache.has("781184561572216832")) {
-//             msg.reply("admin pong");
-//         }else{
-//             msg.reply("pong");
-//         }
-//     }
-//     if (msg.content.startsWith("T1Checkin") && msg.member.roles.cache.has("781184561572216832") && msg.channel.id === "1197557758778679337") {
-//         msg.channel.send("<@401389864077099018>");
-//     }
-// })
+client.on("messageCreate", msg => {
+    if (msg.content === "woah") {
+		msg.reply("prizm!");
+	}else if(msg.content === "Woah"){
+		msg.reply("Prizm!");
+    }else if(msg.content === "WOAH"){
+		msg.reply("PRIZM!");
+	}else if(msg.content.includes("woah" || "Woah" || "WOAH")){
+		msg.reply("prizm!");
+	}
+    if (msg.content.startsWith("T1Checkin") && msg.member.roles.cache.has("781184561572216832") && msg.channel.id === "1197557758778679337") {
+        msg.channel.send("<@401389864077099018>");
+    }
+})
 
 
 client.login(token)
