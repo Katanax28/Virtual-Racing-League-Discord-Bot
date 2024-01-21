@@ -1,4 +1,5 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder} = require('discord.js');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, AttachmentBuilder} = require('discord.js');
+const cron = require('node-cron');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -51,39 +52,40 @@ module.exports = {
 
 		// Create a mapping of the values to their corresponding names
 		const countryChoices = {
-			'abu_dhabi': 'Abu Dhabi',
-			'australia': 'Australia',
-			'austria': 'Austria',
-			'azerbaijan': 'Azerbaijan',
-			'bahrain': 'Bahrain',
-			'belgium': 'Belgium',
-			'brazil': 'Brazil',
-			'canada': 'Canada',
-			'china': 'China',
-			'france': 'France',
-			'britain': 'Great Britain',
-			'hungary': 'Hungary',
-			'imola': 'Imola',
-			'monza': 'Italy',
-			'japan': 'Japan',
-			'vegas': 'Las Vegas',
-			'mexico': 'Mexico',
-			'miami': 'Miami',
-			// 'monaco': 'Monaco',
-			'netherlands': 'Netherlands',
-			'portugal': 'Portugal',
-			'qatar': 'Qatar',
-			'saudi': 'Saudi Arabia',
-			'singapore': 'Singapore',
-			'spain': 'Spain',
-			'cota': 'Texas'
+			'abu_dhabi': { name: 'Abu Dhabi', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290312137814086/are.png' },
+			'australia': { name: 'Australia', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290324733313094/aus.png' },
+			'austria': { name: 'Austria', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290333730078911/aut.png' },
+			'azerbaijan': { name: 'Azerbaijan', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290343670583306/aze.png' },
+			'bahrain': { name: 'Bahrain', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290370954539008/bhr.png' },
+			'belgium': { name: 'Belgium', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290358505840730/bel.png' },
+			'brazil': { name: 'Brazil', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290378726584441/bra.png' },
+			'canada': { name: 'Canada', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290386565734470/can.png' },
+			'china': { name: 'China', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290393075306626/chn.png' },
+			'france': { name: 'France', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290410833973268/fra.png' },
+			'britain': { name: 'Great Britain', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290416869585036/gbr.png' },
+			'hungary': { name: 'Hungary', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290422930346076/hun.png' },
+			'imola': { name: 'Imola', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png' },
+			'monza': { name: 'Italy', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png' },
+			'japan': { name: 'Japan', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290439443329054/jpn.png' },
+			'vegas': { name: 'Las Vegas', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png' },
+			'mexico': { name: 'Mexico', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290457852133376/mex.png' },
+			'miami': { name: 'Miami', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png' },
+			// 'monaco': { name: 'Monaco', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png' },
+			'netherlands': { name: 'Netherlands', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290465716453446/nld.png' },
+			'portugal': { name: 'Portugal', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290473819832340/prt.png' },
+			'qatar': { name: 'Qatar', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290499174416474/qat.png' },
+			'saudi': { name: 'Saudi Arabia', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290510423535677/sau.png' },
+			'singapore': { name: 'Singapore', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290516501082173/sgp.png' },
+			'spain': { name: 'Spain', link: 'https://cdn.discordapp.com/attachments/1198290212678271096/1198290401820409976/esp.png' },
+			'cota': { name: 'Texas', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png' }
 		};
 
 		// Extract the country and title from the command
 		const countryOption = interaction.options.get('country');
 		const countryValue = countryOption.value;
-		const countryName = countryChoices[countryValue]; // Use the mapping to get the name
+		const countryName = countryChoices[countryValue].name; // Use the mapping to get the name
 		const title = interaction.options.getString('title');
+		const countryFlagLink = countryChoices[countryValue].link; // Use the mapping to get the flag link
 
 		// Fetch the members from the tier 1 lineups message
 		const listChannel = await client.channels.fetch('1197943529285107742');
@@ -92,10 +94,7 @@ module.exports = {
 			return interaction.reply('No messages found in the list channel.');
 		}
 		const message = messages.first();
-		// Map over the mentioned users and add an emoji before each mention
-		// Use a regular expression to match the user mentions in the message content
 		const mentionMatches = message.content.match(/<@(\d+)>/g);
-
 
 		// Create the accept and decline buttons
 		const accept = new ButtonBuilder()
@@ -118,19 +117,50 @@ module.exports = {
 		// Calculate the date of the next Sunday at 6pm CET
 		const now = new Date();
 		const nextSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - now.getDay() || 7));
-		nextSunday.setHours(18, 0, 0, 0); // Set the time to 6pm
-		// Convert to CET (Central European Time)
-		nextSunday.setHours(nextSunday.getHours() + 1); // CET is UTC+1
+		nextSunday.setHours(18, 0, 0, 0); // Set the time to 6pm local Dutch time
 
 		// Convert the date to a Unix timestamp (seconds since the Unix Epoch)
 		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
 
+		// Schedule a task to run 48 hours before the event
+		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000); // 48 hours before the event
+		const reminderCronTime = `${reminderTime.getMinutes()} ${reminderTime.getHours()} ${reminderTime.getDate()} ${reminderTime.getMonth() + 1} *`;
+		const testReminderCronTime = `56 17 20 1 *`;
+		console.log(reminderCronTime);
+		console.log(testReminderCronTime);
+
+		cron.schedule(testReminderCronTime, async () => {
+			console.log('reminder program started');
+			// Fetch the message with the embed
+			const checkinChannel = await client.channels.fetch('1197557758778679337');
+			const messages = await checkinChannel.messages.fetch({ limit: 1 });
+			const message = messages.first();
+
+			// Get the embed from the message
+			const embed = message.embeds[0];
+
+			// Get the 'Pending:' field
+			const pendingField = embed.fields.find(field => field.name === '❓ Pending:');
+			console.log(`Pending field value: ${pendingField.value}`); // Log the value of the 'Pending:' field
+
+			// If there are any members in this field, send a message to ping them
+			if (pendingField.value !== 'None') {
+				console.log('Sending reminder...'); // Log a message before sending the reminder
+				await checkinChannel.send(`Reminder for those who have not yet confirmed their attendance: ${pendingField.value}`);
+				console.log(`Reminder sent for ${title}: ${countryName}`);
+				console.log('Reminder sent.'); // Log a message after sending the reminder
+			}else{
+				console.log(`No reminders have been sent.`);
+			}
+			console.log('reminder program complete');
+		});
+
 		// Add the description to the embed with Discord's timestamp formatting
 		const embed = new EmbedBuilder()
-			.setTitle(`${title}: ${countryName}`)
-			.setDescription(`<t:${unixTimestamp}:F>\nThis is <t:${unixTimestamp}:R>`)
-			.setColor('#1C1A36')
-			.setThumbnail('attachment:/img/Flag_of_Austria.svg')
+			.setTitle(`Tier 1 Attendance`)
+			.setDescription(`**${title}: ${countryName}**\n<t:${unixTimestamp}:F>\nThis is <t:${unixTimestamp}:R>`)
+			.setColor('#3835A9')
+			.setThumbnail(countryFlagLink)
 			.addFields(
 				{ name: '✅ Accepted:', value: acceptedMembers.join('\n') || 'None', inline: true },
 				{ name: '❌ Declined:', value: declinedMembers.join('\n') || 'None', inline: true },
