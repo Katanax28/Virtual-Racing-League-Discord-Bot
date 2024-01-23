@@ -1,5 +1,6 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, AttachmentBuilder} = require('discord.js');
-const cron = require('node-cron');
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, AttachmentBuilder, Client } = require('discord.js');
+// const cron = require('node-cron');
+const { Worker } = require('worker_threads');
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -119,43 +120,11 @@ module.exports = {
 		const nextSunday = new Date(now.getFullYear(), now.getMonth(), now.getDate() + (7 - now.getDay() || 7));
 		nextSunday.setHours(18, 0, 0, 0); // Set the time to 6pm local Dutch time
 
-		// Convert the date to a Unix timestamp (seconds since the Unix Epoch)
 		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
 
-		// Schedule a task to run 48 hours before the event
-		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000); // 48 hours before the event
-		const reminderCronTime = `${reminderTime.getMinutes()} ${reminderTime.getHours()} ${reminderTime.getDate()} ${reminderTime.getMonth() + 1} *`;
-		const testReminderCronTime = `56 17 20 1 *`;
-		console.log(reminderCronTime);
-		console.log(testReminderCronTime);
+		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
+		const testReminderTime = new Date(now.getTime() + 30 * 1000);
 
-		cron.schedule(testReminderCronTime, async () => {
-			console.log('reminder program started');
-			// Fetch the message with the embed
-			const checkinChannel = await client.channels.fetch('1197557758778679337');
-			const messages = await checkinChannel.messages.fetch({ limit: 1 });
-			const message = messages.first();
-
-			// Get the embed from the message
-			const embed = message.embeds[0];
-
-			// Get the 'Pending:' field
-			const pendingField = embed.fields.find(field => field.name === '❓ Pending:');
-			console.log(`Pending field value: ${pendingField.value}`); // Log the value of the 'Pending:' field
-
-			// If there are any members in this field, send a message to ping them
-			if (pendingField.value !== 'None') {
-				console.log('Sending reminder...'); // Log a message before sending the reminder
-				await checkinChannel.send(`Reminder for those who have not yet confirmed their attendance: ${pendingField.value}`);
-				console.log(`Reminder sent for ${title}: ${countryName}`);
-				console.log('Reminder sent.'); // Log a message after sending the reminder
-			}else{
-				console.log(`No reminders have been sent.`);
-			}
-			console.log('reminder program complete');
-		});
-
-		// Add the description to the embed with Discord's timestamp formatting
 		const embed = new EmbedBuilder()
 			.setTitle(`Tier 1 Attendance`)
 			.setDescription(`**${title}: ${countryName}**\n<t:${unixTimestamp}:F>\nThis is <t:${unixTimestamp}:R>`)
@@ -167,6 +136,7 @@ module.exports = {
 				{ name: '❓ Pending:', value: pendingMembers.join('\n') || 'None', inline: true }
 			);
 
+
 		// Creating the check-in
 		const checkinChannel = await client.channels.fetch('1197557758778679337');
 		await checkinChannel.send({
@@ -174,25 +144,71 @@ module.exports = {
 			components: [row],
 		});
 
+		const messagesFind = await checkinChannel.messages.fetch({ limit: 1 });
+		const messageFind = messagesFind.first();
+		const embedFind = messageFind.embeds[0];
+		const pendingField = embedFind.fields.find(field => field.name === '❓ Pending:');
+		const worker = new Worker('./workers/reminderWorker.js');
+		worker.postMessage({
+			reminderTime: testReminderTime.getTime(),
+			token: client.token,
+			title: title,
+			countryName: countryName,
+			pendingField: pendingField,
+			checkinChannelId: checkinChannel.id
+		});
+		worker.on('error', (err) => {
+			console.error('An error occurred in the worker:', err);
+		});
+
+		// // Schedule a task to run 48 hours before the event
+		// const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
+		// const reminderCronTime = `${reminderTime.getMinutes()} ${reminderTime.getHours()} ${reminderTime.getDate()} ${reminderTime.getMonth() + 1} *`;
+		// const testReminderCronTime = `56 17 20 1 *`;
+		// console.log(reminderCronTime);
+		// console.log(testReminderCronTime);
+		//
+		// cron.schedule(testReminderCronTime, async () => {
+		// 	console.log('reminder program started');
+		//
+		// 	const checkinChannel = await client.channels.fetch('1197557758778679337');
+		// 	const messages = await checkinChannel.messages.fetch({ limit: 1 });
+		// 	const message = messages.first();
+		// 	const embed = message.embeds[0];
+		// 	const pendingField = embed.fields.find(field => field.name === '❓ Pending:');
+		// 	console.log(`Pending field value: ${pendingField.value}`); // Log the value of the 'Pending:' field
+		//
+		// 	// If there are any members in this field, send a message to ping them
+		// 	if (pendingField.value !== 'None') {
+		// 		console.log('Sending reminder...'); // debug
+		// 		await checkinChannel.send(`Reminder for those who have not yet confirmed their attendance: ${pendingField.value}`);
+		// 		console.log(`Reminder sent for ${title}: ${countryName}`);
+		// 		console.log('Reminder sent.'); // debug
+		// 	}else{
+		// 		console.log(`No reminders have been sent.`);
+		// 	}
+		// 	console.log('reminder program complete'); //debug
+		// });
+
+
+
 		// Confirmation of command
 		await interaction.reply({
 			content: `Tier 1 checkin complete.`,
+			ephemeral: true,
 		});
 
 		// When an interaction with the buttons occurs
 		client.on('interactionCreate', async (interaction) => {
 			if (!interaction.isButton()) return;
-			// Fetch the message
 			const message = await interaction.message.fetch();
-			// Get the embed from the message
 			const embed = message.embeds[0];
-			// Get the fields
-			// Get the fields
 			const fields = {
 				'Accepted:': embed.fields.find(field => field.name === '✅ Accepted:'),
 				'Declined:': embed.fields.find(field => field.name === '❌ Declined:'),
 				'Pending:': embed.fields.find(field => field.name === '❓ Pending:')
 			};
+
 
 			// Find the user in the fields and move them to the appropriate field
 			const userId = `<@${interaction.user.id}>`;
@@ -219,14 +235,13 @@ module.exports = {
 				if (field.value.trim() === '') {
 					field.value = 'None';
 				} else {
-					// Replace all occurrences of double newlines with a single newline
+					// Get rid of double newlines
 					field.value = field.value.replace(/\n\n/g, '\n');
 				}
 			}
 
 			// Edit the message with the new content
 			await message.edit({ embeds: [embed] });
-			// Acknowledge the interaction
 			if (!interaction.replied && !interaction.deferred) {
 				await interaction.reply({ content: 'Attendance updated.', ephemeral: true });
 			}
