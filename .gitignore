@@ -1,1 +1,9 @@
+
+# Config #
+.env
 config.json
+
+# node generated files #
+#######################
+node_modules/
+npm-debug.log
