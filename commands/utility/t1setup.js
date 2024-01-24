@@ -123,7 +123,10 @@ module.exports = {
 		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
 
 		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-		const testReminderTime = new Date(now.getTime() + 30 * 1000);
+		const testReminderTime = new Date(now.getTime() + 10 * 1000);
+		const logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
+		const testLogTime = new Date(now.getTime() + 20 * 1000);
+
 
 		const embed = new EmbedBuilder()
 			.setTitle(`Tier 1 Attendance`)
@@ -143,53 +146,40 @@ module.exports = {
 			embeds: [embed],
 			components: [row],
 		});
+		const modChannel = await client.channels.fetch('1197557814135095296');
 
 		const messagesFind = await checkinChannel.messages.fetch({ limit: 1 });
 		const messageFind = messagesFind.first();
 		const embedFind = messageFind.embeds[0];
 		const pendingField = embedFind.fields.find(field => field.name === '❓ Pending:');
-		const worker = new Worker('./workers/reminderWorker.js');
-		worker.postMessage({
-			reminderTime: testReminderTime.getTime(),
-			token: client.token,
+		const declinedField = embedFind.fields.find(field => field.name === '❌ Declined:');
+
+		const attendanceLogWorker = new Worker('./workers/attendanceLogWorker.js');
+		attendanceLogWorker.postMessage({
 			title: title,
+			token: client.token,
 			countryName: countryName,
-			pendingField: pendingField,
-			checkinChannelId: checkinChannel.id
+			declinedField: declinedField,
+			modChannelId: modChannel.id,
+			logTime: testLogTime.getTime()
 		});
-		worker.on('error', (err) => {
+		attendanceLogWorker.on('error', (err) => {
 			console.error('An error occurred in the worker:', err);
 		});
 
-		// // Schedule a task to run 48 hours before the event
-		// const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-		// const reminderCronTime = `${reminderTime.getMinutes()} ${reminderTime.getHours()} ${reminderTime.getDate()} ${reminderTime.getMonth() + 1} *`;
-		// const testReminderCronTime = `56 17 20 1 *`;
-		// console.log(reminderCronTime);
-		// console.log(testReminderCronTime);
-		//
-		// cron.schedule(testReminderCronTime, async () => {
-		// 	console.log('reminder program started');
-		//
-		// 	const checkinChannel = await client.channels.fetch('1197557758778679337');
-		// 	const messages = await checkinChannel.messages.fetch({ limit: 1 });
-		// 	const message = messages.first();
-		// 	const embed = message.embeds[0];
-		// 	const pendingField = embed.fields.find(field => field.name === '❓ Pending:');
-		// 	console.log(`Pending field value: ${pendingField.value}`); // Log the value of the 'Pending:' field
-		//
-		// 	// If there are any members in this field, send a message to ping them
-		// 	if (pendingField.value !== 'None') {
-		// 		console.log('Sending reminder...'); // debug
-		// 		await checkinChannel.send(`Reminder for those who have not yet confirmed their attendance: ${pendingField.value}`);
-		// 		console.log(`Reminder sent for ${title}: ${countryName}`);
-		// 		console.log('Reminder sent.'); // debug
-		// 	}else{
-		// 		console.log(`No reminders have been sent.`);
-		// 	}
-		// 	console.log('reminder program complete'); //debug
-		// });
 
+		// const reminderWorker = new Worker('./workers/reminderWorker.js');
+		// reminderWorker.postMessage({
+		// 	reminderTime: testReminderTime.getTime(),
+		// 	token: client.token,
+		// 	title: title,
+		// 	countryName: countryName,
+		// 	pendingField: pendingField,
+		// 	checkinChannelId: checkinChannel.id
+		// });
+		// reminderWorker.on('error', (err) => {
+		// 	console.error('An error occurred in the worker:', err);
+		// });
 
 
 		// Confirmation of command
