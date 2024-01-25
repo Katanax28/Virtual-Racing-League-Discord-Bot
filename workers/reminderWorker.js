@@ -44,62 +44,29 @@ parentPort.on("message", (message) => {
 });
 
 // Define a function to send the schedule with the latest data
-function sendSchedule() {
+function schedule() {
 	// Send the first scheduled poll to the main thread
 	// parentPort.postMessage(scheduleData);
 	console.log(scheduleData);
-	
-	const now = new Date();
-	const firstReminderTime = new Date(reminderTime);
-	console.log(firstReminderTime)
-	if (now > firstReminderTime) {
-		firstReminderTime.setDate(firstReminderTime.getDate() + 0.5);
-	}
+	const currentTime = new Date();
+
+	const remindersPast = data.filter((item) => item.reminderTime < currentTime);
+	remindersPast.array.forEach((form) => {
+		sendReminder(form);
+		scheduleData = scheduleData.filter((item) => item.id !== form.id);
+	});
+}
+// send reminder message
+async function sendReminder(form) {
+	const client = new Client({
+		intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+	});
+	await client.login(token);
+	const checkinChannel = await client.channels.fetch(form.checkinChannelId);
+	await checkinChannel.send(
+		`Reminder to those who have not yet confirmed their attendance:\n${form.pendingField}`
+	);
 }
 
-
-
 // Periodically send the schedule (adjust the interval as needed)
-setInterval(sendSchedule, 5000);
-
-
-
-
-// parentPort.on('message', async (data) => {
-//     const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
-//     await client.login(data.token);
-//
-//
-//
-//     const checkinChannel = await client.channels.fetch(data.checkinChannelId);
-//
-//     const sendReminder = async () => {
-//         // If there are any members in this field, send a message to ping them
-//         if (data.pendingField.value !== 'None') {
-//             // await checkinChannel.send(`Reminder to those who have not yet confirmed their attendance:\n${data.pendingField.value}`);
-//             console.log(`Reminder sent for ${data.title}: ${data.countryName}`);
-//         } else {
-//             console.log(`No reminders have been sent.`);
-//         }
-//         console.log('reminder program complete'); //debug
-//
-// Schedule the next reminder
-//     const now = new Date();
-//     const nextReminderTime = new Date(data.reminderTime);
-//     if (now > nextReminderTime) {
-//         nextReminderTime.setDate(nextReminderTime.getDate() + 1);
-//     }
-//     const delay = nextReminderTime - now;
-//     setTimeout(sendReminder, delay);
-// };
-
-// // Schedule the first reminder
-// const now = new Date();
-// const firstReminderTime = new Date(data.reminderTime);
-// console.log(firstReminderTime)
-// if (now > firstReminderTime) {
-//     firstReminderTime.setDate(firstReminderTime.getDate() + 0.5);
-// }
-// const delay = firstReminderTime - now;
-// setTimeout(sendReminder, delay);
-// });
+setInterval(schedule, 5000);
