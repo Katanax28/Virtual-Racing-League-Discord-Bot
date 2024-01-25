@@ -67,23 +67,23 @@ setInterval(sendSchedule, 5000);
 //         }
 //         console.log('reminder program complete'); //debug
 //
-//         // Schedule the next reminder
-//         const now = new Date();
-//         const nextReminderTime = new Date(data.reminderTime);
-//         if (now > nextReminderTime) {
-//             nextReminderTime.setDate(nextReminderTime.getDate() + 1);
-//         }
-//         const delay = nextReminderTime - now;
-//         setTimeout(sendReminder, delay);
-//     };
-//
-//     // Schedule the first reminder
-//     const now = new Date();
-//     const firstReminderTime = new Date(data.reminderTime);
-//     console.log(firstReminderTime)
-//     if (now > firstReminderTime) {
-//         firstReminderTime.setDate(firstReminderTime.getDate() + 0.5);
-//     }
-//     const delay = firstReminderTime - now;
-//     setTimeout(sendReminder, delay);
+        // Schedule the next reminder
+        const now = new Date();
+        const nextReminderTime = new Date(data.reminderTime);
+        if (now > nextReminderTime) {
+            nextReminderTime.setDate(nextReminderTime.getDate() + 1);
+        }
+        const delay = nextReminderTime - now;
+        setTimeout(sendReminder, delay);
+    };
+
+    // Schedule the first reminder
+    const now = new Date();
+    const firstReminderTime = new Date(data.reminderTime);
+    console.log(firstReminderTime)
+    if (now > firstReminderTime) {
+        firstReminderTime.setDate(firstReminderTime.getDate() + 0.5);
+    }
+    const delay = firstReminderTime - now;
+    setTimeout(sendReminder, delay);
 // });

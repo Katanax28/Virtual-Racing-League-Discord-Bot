@@ -173,7 +173,6 @@ module.exports = {
 		const reminderWorker = new Worker('./workers/reminderWorker.js');
 		reminderWorker.postMessage({
 			reminderTime: testReminderTime.getTime(),
-			// token: client.token,
 			title: title,
 			countryName: countryName,
 			pendingField: pendingField,
