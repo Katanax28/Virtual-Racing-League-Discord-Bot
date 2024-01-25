@@ -1,6 +1,8 @@
 const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, AttachmentBuilder, Client } = require('discord.js');
 // const cron = require('node-cron');
 const { Worker } = require('worker_threads');
+const reminderWorker = new Worker('./workers/reminderWorker.js');
+
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -123,7 +125,7 @@ module.exports = {
 		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
 
 		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-		const testReminderTime = new Date(now.getTime() + 10 * 1000);
+		const testReminderTime = new Date(now.getTime() + 1200 * 1000);
 		const logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
 		const testLogTime = new Date(now.getTime() + 20 * 1000);
 
@@ -154,24 +156,24 @@ module.exports = {
 		const pendingField = embedFind.fields.find(field => field.name === '❓ Pending:');
 		const declinedField = embedFind.fields.find(field => field.name === '❌ Declined:');
 
-		const attendanceLogWorker = new Worker('./workers/attendanceLogWorker.js');
-		attendanceLogWorker.postMessage({
-			title: title,
-			token: client.token,
-			countryName: countryName,
-			declinedField: declinedField,
-			modChannelId: modChannel.id,
-			logTime: testLogTime.getTime()
-		});
-		attendanceLogWorker.on('error', (err) => {
-			console.error('An error occurred in the worker:', err);
-		});
+		// const attendanceLogWorker = new Worker('./workers/attendanceLogWorker.js');
+		// attendanceLogWorker.postMessage({
+		// 	title: title,
+		// 	token: client.token,
+		// 	countryName: countryName,
+		// 	declinedField: declinedField,
+		// 	modChannelId: modChannel.id,
+		// 	logTime: testLogTime.getTime()
+		// });
+		// attendanceLogWorker.on('error', (err) => {
+		// 	console.error('An error occurred in the worker:', err);
+		// });
 
 
-		// const reminderWorker = new Worker('./workers/reminderWorker.js');
+		const reminderWorker = new Worker('./workers/reminderWorker.js');
 		// reminderWorker.postMessage({
 		// 	reminderTime: testReminderTime.getTime(),
-		// 	token: client.token,
+		// 	// token: client.token,
 		// 	title: title,
 		// 	countryName: countryName,
 		// 	pendingField: pendingField,
@@ -187,6 +189,17 @@ module.exports = {
 			content: `Tier 1 checkin complete.`,
 			ephemeral: true,
 		});
+
+		const initialData = {
+			type: "init",
+			pollId: "33", // Replace with your actual pollId
+			data: pendingMembers.value // Replace with your actual data
+		};
+		console.log(pendingMembers.value);
+		reminderWorker.postMessage(initialData);
+		console.log("Initial data sent");
+
+		const updateData = pendingField;
 
 		// When an interaction with the buttons occurs
 		client.on('interactionCreate', async (interaction) => {
@@ -213,9 +226,11 @@ module.exports = {
 					field.value = field.value.replace(userId, '').trim();
 					if (fields[targetField].value === 'None' || fields[targetField].value === '') {
 						fields[targetField].value = userId;
+
 					} else {
 						fields[targetField].value = `${fields[targetField].value}\n${userId}`.trim();
 					}
+					updateData.value = fields['Pending:'].value;
 					break;
 				}
 			}
@@ -236,5 +251,26 @@ module.exports = {
 				await interaction.reply({ content: 'Attendance updated.', ephemeral: true });
 			}
 		});
+		await sleep(10000);
+
+		setTimeout(() => {
+			if(!updateData) {
+				const updateData = [
+					{id: 2, userId: "aaa", voted: true},
+					{id: 5, userId: "bbb", voted: true},
+					{id: 4, userId: "ccc", voted: true},
+					{id: 7, userId: "ddd", voted: true},
+				];
+			}
+			const sendUpdateData = {
+				type: "update",
+				pollId: "33", // Replace with your actual pollId
+				data: updateData,
+			}
+			console.log(updateData);
+			// Send the update message to the worker
+			reminderWorker.postMessage(sendUpdateData);
+			console.log("Update data sent");
+		}, 10000); // Adjust delay as needed
 	},
 };
