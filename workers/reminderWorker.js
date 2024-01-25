@@ -18,6 +18,7 @@ parentPort.on("message", (message) => {
 		checkinChannelId,
 		messageId,
 	} = message;
+	// add a regex here to clean up pendingField
 	switch (type) {
 		case "init":
 			scheduleData.push({
