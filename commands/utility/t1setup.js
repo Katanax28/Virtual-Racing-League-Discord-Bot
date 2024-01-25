@@ -171,17 +171,17 @@ module.exports = {
 
 
 		const reminderWorker = new Worker('./workers/reminderWorker.js');
-		// reminderWorker.postMessage({
-		// 	reminderTime: testReminderTime.getTime(),
-		// 	// token: client.token,
-		// 	title: title,
-		// 	countryName: countryName,
-		// 	pendingField: pendingField,
-		// 	checkinChannelId: checkinChannel.id
-		// });
-		// reminderWorker.on('error', (err) => {
-		// 	console.error('An error occurred in the worker:', err);
-		// });
+		reminderWorker.postMessage({
+			reminderTime: testReminderTime.getTime(),
+			// token: client.token,
+			title: title,
+			countryName: countryName,
+			pendingField: pendingField,
+			checkinChannelId: checkinChannel.id
+		});
+		reminderWorker.on('error', (err) => {
+			console.error('An error occurred in the worker:', err);
+		});
 
 
 		// Confirmation of command
@@ -190,16 +190,8 @@ module.exports = {
 			ephemeral: true,
 		});
 
-		const initialData = {
-			type: "init",
-			pollId: "33", // Replace with your actual pollId
-			data: pendingMembers.value // Replace with your actual data
-		};
-		console.log(pendingMembers.value);
-		reminderWorker.postMessage(initialData);
-		console.log("Initial data sent");
 
-		const updateData = pendingField;
+		let updateData = pendingField.value;
 
 		// When an interaction with the buttons occurs
 		client.on('interactionCreate', async (interaction) => {
@@ -230,7 +222,7 @@ module.exports = {
 					} else {
 						fields[targetField].value = `${fields[targetField].value}\n${userId}`.trim();
 					}
-					updateData.value = fields['Pending:'].value;
+					updateData = fields['Pending:'].value;
 					break;
 				}
 			}
@@ -251,26 +243,5 @@ module.exports = {
 				await interaction.reply({ content: 'Attendance updated.', ephemeral: true });
 			}
 		});
-		await sleep(10000);
-
-		setTimeout(() => {
-			if(!updateData) {
-				const updateData = [
-					{id: 2, userId: "aaa", voted: true},
-					{id: 5, userId: "bbb", voted: true},
-					{id: 4, userId: "ccc", voted: true},
-					{id: 7, userId: "ddd", voted: true},
-				];
-			}
-			const sendUpdateData = {
-				type: "update",
-				pollId: "33", // Replace with your actual pollId
-				data: updateData,
-			}
-			console.log(updateData);
-			// Send the update message to the worker
-			reminderWorker.postMessage(sendUpdateData);
-			console.log("Update data sent");
-		}, 10000); // Adjust delay as needed
 	},
 };
