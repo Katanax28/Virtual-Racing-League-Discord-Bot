@@ -48,10 +48,22 @@ function sendSchedule() {
 	// Send the first scheduled poll to the main thread
 	// parentPort.postMessage(scheduleData);
 	console.log(scheduleData);
+	
+	const now = new Date();
+	const firstReminderTime = new Date(reminderTime);
+	console.log(firstReminderTime)
+	if (now > firstReminderTime) {
+		firstReminderTime.setDate(firstReminderTime.getDate() + 0.5);
+	}
 }
+
+
 
 // Periodically send the schedule (adjust the interval as needed)
 setInterval(sendSchedule, 5000);
+
+
+
 
 // parentPort.on('message', async (data) => {
 //     const client = new Client({ intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages] });
