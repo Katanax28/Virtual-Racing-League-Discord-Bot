@@ -13,12 +13,12 @@ async function saveScheduleData(scheduleData) {
 	});
 }
 async function loadScheduleData() {
-	fs.readFile("scheduleData.json", (err, data) => {
+	return fs.readFile("scheduleData.json", (err, data) => {
 		if (err) throw err;
 		scheduleData = JSON.parse(data);
 		console.log("Data loaded from file");
+		return scheduleData;
 	});
-	return scheduleData;
 }
 // init
 saveScheduleData([]); // [{ id: messageId, reminderTime: reminderTime, checkinChannelId: checkinChannelId, pendingField: pendingField }, {...}]
