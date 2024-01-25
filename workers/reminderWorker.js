@@ -13,7 +13,7 @@ async function saveScheduleData(scheduleData) {
 	});
 }
 // init
-saveScheduleData([]); // [{ id: messageId, reminderTime: reminderTime, checkinChannelId: checkinChannelId, pendingField: pendingField }, {...}]
+//saveScheduleData([]); // [{ id: messageId, reminderTime: reminderTime, checkinChannelId: checkinChannelId, pendingField: pendingField }, {...}]
 
 // Handle messages from the main thread
 parentPort.on("message", (message) => {
