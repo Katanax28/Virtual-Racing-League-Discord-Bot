@@ -22,6 +22,7 @@ async function loadScheduleData() {
 }
 // init
 saveScheduleData([]); // [{ id: messageId, reminderTime: reminderTime, checkinChannelId: checkinChannelId, pendingField: pendingField }, {...}]
+let scheduleData = loadScheduleData();
 
 // Handle messages from the main thread
 parentPort.on("message", (message) => {
