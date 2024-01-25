@@ -9,7 +9,7 @@ let scheduleData = []; // [{ id: messageId, reminderTime: reminderTime, checkinC
 // Handle messages from the main thread
 parentPort.on("message", (message) => {
 	console.log(message);
-	const {
+	let {
 		type,
 		reminderTime,
 		title,
@@ -19,6 +19,7 @@ parentPort.on("message", (message) => {
 		messageId,
 	} = message;
 	// add a regex here to clean up pendingField
+	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
 	switch (type) {
 		case "init":
 			scheduleData.push({

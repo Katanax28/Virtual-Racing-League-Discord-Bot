@@ -5,5 +5,6 @@ config.json
 
 # node generated files #
 #######################
+.idea/
 node_modules/
 npm-debug.log

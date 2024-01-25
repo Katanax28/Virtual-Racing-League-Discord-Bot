@@ -241,7 +241,7 @@ module.exports = {
 					inline: true,
 				}
 			);
-		const messageFind = undefined;
+		let messageFind = undefined;
 		// Creating the check-in
 		const checkinChannel = await client.channels.fetch("1197557758778679337");
 		await checkinChannel
@@ -340,7 +340,7 @@ module.exports = {
 					}
 					reminderWorker.postMessage({
 						type: "update",
-						pendingField: fields["Pending:"].value,
+						pendingField: fields["Pending:"],
 						messageId: messageFind.id,
 					});
 					break;
