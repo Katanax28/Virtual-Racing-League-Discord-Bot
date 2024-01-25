@@ -1,10 +1,27 @@
+const fs = require("fs");
 require("dotenv").config();
 const { parentPort, workerData } = require("worker_threads");
 const { Client, Intents, GatewayIntentBits } = require("discord.js");
 const token = process.env.TOKEN;
 
-// Initialize the global variable with initial data
-let scheduleData = []; // [{ id: messageId, reminderTime: reminderTime, checkinChannelId: checkinChannelId, pendingField: pendingField }, {...}]
+// Initialize the global variable with initial data that is presisted to disk
+async function saveScheduleData(scheduleData) {
+	let dataString = JSON.stringify(scheduleData);
+	fs.writeFile("scheduleData.json", dataString, (err) => {
+		if (err) throw err;
+		console.log("Data written to file");
+	});
+}
+async function loadScheduleData() {
+	fs.readFile("scheduleData.json", (err, data) => {
+		if (err) throw err;
+		scheduleData = JSON.parse(data);
+		console.log("Data loaded from file");
+	});
+	return scheduleData;
+}
+// init
+saveScheduleData([]); // [{ id: messageId, reminderTime: reminderTime, checkinChannelId: checkinChannelId, pendingField: pendingField }, {...}]
 
 // Handle messages from the main thread
 parentPort.on("message", (message) => {
@@ -22,6 +39,7 @@ parentPort.on("message", (message) => {
 	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
 	switch (type) {
 		case "init":
+			scheduleData = loadScheduleData();
 			scheduleData.push({
 				id: messageId,
 				reminderTime: reminderTime,
@@ -30,6 +48,7 @@ parentPort.on("message", (message) => {
 			});
 			break;
 		case "update":
+			scheduleData = loadScheduleData();
 			const pollData = scheduleData.find((e) => e.id === messageId);
 			if (pollData !== undefined) {
 				pollData.pendingField = pendingField;
@@ -47,6 +66,7 @@ parentPort.on("message", (message) => {
 function schedule() {
 	// Send the first scheduled poll to the main thread
 	// parentPort.postMessage(scheduleData);
+	scheduleData = loadScheduleData();
 	console.log(scheduleData);
 	const currentTime = new Date();
 
