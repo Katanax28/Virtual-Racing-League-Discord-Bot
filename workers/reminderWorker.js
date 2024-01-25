@@ -50,8 +50,8 @@ function schedule() {
 	console.log(scheduleData);
 	const currentTime = new Date();
 
-	const remindersPast = data.filter((item) => item.reminderTime < currentTime);
-	remindersPast.array.forEach((form) => {
+	const remindersPast = scheduleData.filter((item) => item.reminderTime < currentTime);
+	remindersPast.forEach((form) => {
 		sendReminder(form);
 		scheduleData = scheduleData.filter((item) => item.id !== form.id);
 	});

@@ -213,7 +213,7 @@ module.exports = {
 		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
 
 		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-		const testReminderTime = new Date(now.getTime() + 1200 * 1000);
+		const testReminderTime = new Date(now.getTime() + 20 * 1000);
 		const logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
 		const testLogTime = new Date(now.getTime() + 20 * 1000);
 
