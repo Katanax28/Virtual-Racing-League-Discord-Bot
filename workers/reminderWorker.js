@@ -12,17 +12,8 @@ async function saveScheduleData(scheduleData) {
 		console.log("Data written to file");
 	});
 }
-async function loadScheduleData() {
-	return fs.readFile("scheduleData.json", (err, data) => {
-		if (err) throw err;
-		scheduleData = JSON.parse(data);
-		console.log("Data loaded from file");
-		return scheduleData;
-	});
-}
 // init
 saveScheduleData([]); // [{ id: messageId, reminderTime: reminderTime, checkinChannelId: checkinChannelId, pendingField: pendingField }, {...}]
-let scheduleData = loadScheduleData();
 
 // Handle messages from the main thread
 parentPort.on("message", (message) => {
@@ -40,20 +31,30 @@ parentPort.on("message", (message) => {
 	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
 	switch (type) {
 		case "init":
-			scheduleData = loadScheduleData();
-			scheduleData.push({
-				id: messageId,
-				reminderTime: reminderTime,
-				checkinChannelId: checkinChannelId,
-				pendingField: pendingField,
+			fs.readFile("scheduleData.json", (err, data) => {
+				if (err) throw err;
+				scheduleData = JSON.parse(data);
+				scheduleData.push({
+					id: messageId,
+					reminderTime: reminderTime,
+					checkinChannelId: checkinChannelId,
+					pendingField: pendingField,
+				});
+				saveScheduleData(scheduleData);
 			});
+
 			break;
 		case "update":
-			scheduleData = loadScheduleData();
-			const pollData = scheduleData.find((e) => e.id === messageId);
-			if (pollData !== undefined) {
-				pollData.pendingField = pendingField;
-			}
+			fs.readFile("scheduleData.json", (err, data) => {
+				if (err) throw err;
+				scheduleData = JSON.parse(data);
+				const pollData = scheduleData.find((e) => e.id === messageId);
+				if (pollData !== undefined) {
+					pollData.pendingField = pendingField;
+				}
+				saveScheduleData(scheduleData);
+			});
+
 			break;
 		default:
 			console.log("Invalid message type");
@@ -67,16 +68,20 @@ parentPort.on("message", (message) => {
 function schedule() {
 	// Send the first scheduled poll to the main thread
 	// parentPort.postMessage(scheduleData);
-	scheduleData = loadScheduleData();
-	console.log(scheduleData);
-	const currentTime = new Date();
+	fs.readFile("scheduleData.json", (err, data) => {
+		if (err) throw err;
+		scheduleData = JSON.parse(data);
+		console.log(scheduleData);
+		const currentTime = new Date();
 
-	const remindersPast = scheduleData.filter(
-		(item) => item.reminderTime < currentTime
-	);
-	remindersPast.forEach((form) => {
-		sendReminder(form);
-		scheduleData = scheduleData.filter((item) => item.id !== form.id);
+		const remindersPast = scheduleData.filter(
+			(item) => item.reminderTime < currentTime
+		);
+		remindersPast.forEach((form) => {
+			sendReminder(form);
+			scheduleData = scheduleData.filter((item) => item.id !== form.id);
+		});
+		saveScheduleData(scheduleData);
 	});
 }
 // send reminder message
