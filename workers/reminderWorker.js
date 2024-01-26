@@ -80,8 +80,9 @@ function schedule() {
 		remindersPast.forEach((form) => {
 			sendReminder(form);
 			scheduleData = scheduleData.filter((item) => item.id !== form.id);
+			saveScheduleData(scheduleData);
 		});
-		saveScheduleData(scheduleData);
+
 	});
 }
 // send reminder message
