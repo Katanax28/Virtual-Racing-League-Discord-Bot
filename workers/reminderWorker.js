@@ -12,8 +12,6 @@ async function saveScheduleData(scheduleData) {
 		console.log("Data written to file");
 	});
 }
-// init
-//saveScheduleData([]); // [{ id: messageId, reminderTime: reminderTime, checkinChannelId: checkinChannelId, pendingField: pendingField }, {...}]
 
 // Handle messages from the main thread
 parentPort.on("message", (message) => {
@@ -21,11 +19,14 @@ parentPort.on("message", (message) => {
 	let {
 		type,
 		reminderTime,
+		logTime,
 		title,
 		countryName,
 		pendingField,
+		declinedField,
 		checkinChannelId,
 		messageId,
+		modChannelId,
 	} = message;
 	// add a regex here to clean up pendingField
 	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
@@ -38,7 +39,10 @@ parentPort.on("message", (message) => {
 					id: messageId,
 					reminderTime: reminderTime,
 					checkinChannelId: checkinChannelId,
+					modChannelId: modChannelId,
 					pendingField: pendingField,
+					declinedField: declinedField,
+					reminderTimeElapsed: false,
 				});
 				saveScheduleData(scheduleData);
 			});
@@ -51,6 +55,7 @@ parentPort.on("message", (message) => {
 				const pollData = scheduleData.find((e) => e.id === messageId);
 				if (pollData !== undefined) {
 					pollData.pendingField = pendingField;
+					pollData.declinedField = declinedField;
 				}
 				saveScheduleData(scheduleData);
 			});
@@ -77,8 +82,21 @@ function pendingSchedule() {
 		const remindersPast = scheduleData.filter(
 			(item) => item.reminderTime < currentTime
 		);
+		const logTimePast = scheduleData.filter(
+			(item) => item.logTime < currentTime
+		);
+
 		remindersPast.forEach((form) => {
-			sendReminder(form);
+			if(!form.reminderTimeElapsed){
+				sendReminder(form)
+			}
+			const pollData = scheduleData.find((e) => e.id === form.id);
+			pollData.reminderTimeElapsed = true;
+		});
+
+		logTimePast.forEach((form) => {
+			// send log message
+			sendLog(form)
 			let updatedScheduleData = scheduleData.filter((item) => item.id !== form.id);
 			if (updatedScheduleData.length > 0) {
 				saveScheduleData(updatedScheduleData);
@@ -100,6 +118,18 @@ async function sendReminder(form) {
 	if(form.pendingField !== "None") {
 		await checkinChannel.send(
 			`Reminder to those who have not yet confirmed their attendance:\n${form.pendingField}`
+		);
+	}
+}
+async function sendLog(form) {
+	const client = new Client({
+		intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
+	});
+	await client.login(token);
+	const checkinChannel = await client.channels.fetch(form.modChannelId);
+	if(form.declinedField !== "None") {
+		await checkinChannel.send(
+			`Attendance log:\n${form.declinedField}`
 		);
 	}
 }

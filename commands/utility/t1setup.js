@@ -283,11 +283,14 @@ module.exports = {
 		reminderWorker.postMessage({
 			type: "init",
 			reminderTime: testReminderTime.getTime(),
+			logTime: testLogTime.getTime(),
 			title: title,
 			countryName: countryName,
 			pendingField: pendingField,
+			declinedField: declinedField,
 			checkinChannelId: checkinChannel.id,
 			messageId: messageFind.id,
+			modChannelId: modChannel.id,
 		});
 		reminderWorker.on("error", (err) => {
 			console.error("An error occurred in the worker:", err);
@@ -363,6 +366,7 @@ module.exports = {
 			reminderWorker.postMessage({
 				type: "update",
 				pendingField: fields["Pending:"],
+				declinedField: fields["Declined:"],
 				messageId: messageFind.id,
 			});
 
