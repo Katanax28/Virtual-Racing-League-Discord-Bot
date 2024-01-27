@@ -6,7 +6,7 @@ const token = process.env.TOKEN;
 
 // Initialize the global variable with initial data that is presisted to disk
 async function saveScheduleData(scheduleData) {
-	let dataString = JSON.stringify(scheduleData);
+	let dataString = JSON.stringify(scheduleData, null, 2);
 	fs.writeFile("scheduleData.json", dataString, (err) => {
 		if (err) throw err;
 		console.log("Data written to file");
@@ -79,8 +79,12 @@ function schedule() {
 		);
 		remindersPast.forEach((form) => {
 			sendReminder(form);
-			scheduleData = scheduleData.filter((item) => item.id !== form.id);
-			saveScheduleData(scheduleData);
+			let updatedScheduleData = scheduleData.filter((item) => item.id !== form.id);
+			if (updatedScheduleData.length > 0) {
+				saveScheduleData(updatedScheduleData);
+			} else {
+				saveScheduleData([]);
+			}
 		});
 
 	});
@@ -92,10 +96,12 @@ async function sendReminder(form) {
 	});
 	await client.login(token);
 	const checkinChannel = await client.channels.fetch(form.checkinChannelId);
-	await checkinChannel.send(
-		`Reminder to those who have not yet confirmed their attendance:\n${form.pendingField}`
-	);
+	if(form.pendingField !== "None") {
+		await checkinChannel.send(
+			`Reminder to those who have not yet confirmed their attendance:\n${form.pendingField}`
+		);
+	}
 }
 
-// Periodically send the schedule (adjust the interval as needed)
-setInterval(schedule, 5000);
+// Periodically send the schedule (interval in seconds)
+setInterval(schedule, (120 * 1000));

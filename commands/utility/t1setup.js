@@ -303,6 +303,10 @@ module.exports = {
 		client.on("interactionCreate", async (interaction) => {
 			if (!interaction.isButton()) return;
 			const message = await interaction.message.fetch();
+
+			// Check if the interaction is related to the specific message
+			if (message.id !== messageFind.id) return;
+
 			const embed = message.embeds[0];
 			const fields = {
 				"Accepted:": embed.fields.find(
@@ -319,31 +323,28 @@ module.exports = {
 			const targetField =
 				interaction.customId === "accept" ? "Accepted:" : "Declined:";
 			for (const [fieldName, field] of Object.entries(fields)) {
-				if (field.value.includes(userId)) {
-					// If the user is already in the target field, do not modify the fields or the message
-					if (fieldName === targetField) {
-						await interaction.reply({
-							content: `You are already registered as ${fieldName}.`,
-							ephemeral: true,
-						});
-						return;
+				if(interaction.message.id === messageFind.id) {
+					if (field.value.includes(userId)) {
+						// If the user is already in the target field, do not modify the fields or the message
+						if (fieldName === targetField) {
+							await interaction.reply({
+								content: `You are already registered as ${fieldName}.`,
+								ephemeral: true,
+							});
+							return;
+						}
+						field.value = field.value.replace(userId, "").trim();
+						if (
+							fields[targetField].value === "None" ||
+							fields[targetField].value === ""
+						) {
+							fields[targetField].value = userId;
+						} else {
+							fields[targetField].value =
+								`${fields[targetField].value}\n${userId}`.trim();
+						}
+						break;
 					}
-					field.value = field.value.replace(userId, "").trim();
-					if (
-						fields[targetField].value === "None" ||
-						fields[targetField].value === ""
-					) {
-						fields[targetField].value = userId;
-					} else {
-						fields[targetField].value =
-							`${fields[targetField].value}\n${userId}`.trim();
-					}
-					reminderWorker.postMessage({
-						type: "update",
-						pendingField: fields["Pending:"],
-						messageId: messageFind.id,
-					});
-					break;
 				}
 			}
 
@@ -359,6 +360,12 @@ module.exports = {
 
 			// Edit the message with the new content
 			await message.edit({ embeds: [embed] });
+			reminderWorker.postMessage({
+				type: "update",
+				pendingField: fields["Pending:"],
+				messageId: messageFind.id,
+			});
+
 			if (!interaction.replied && !interaction.deferred) {
 				await interaction.reply({
 					content: "Attendance updated.",
@@ -367,4 +374,4 @@ module.exports = {
 			}
 		});
 	},
-};
+}
