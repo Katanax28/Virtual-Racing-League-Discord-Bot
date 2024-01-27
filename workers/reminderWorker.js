@@ -65,13 +65,13 @@ parentPort.on("message", (message) => {
 });
 
 // Define a function to send the schedule with the latest data
-function schedule() {
+function pendingSchedule() {
 	// Send the first scheduled poll to the main thread
 	// parentPort.postMessage(scheduleData);
 	fs.readFile("scheduleData.json", (err, data) => {
 		if (err) throw err;
 		scheduleData = JSON.parse(data);
-		console.log(scheduleData);
+		// console.log(scheduleData);
 		const currentTime = new Date();
 
 		const remindersPast = scheduleData.filter(
@@ -89,6 +89,7 @@ function schedule() {
 
 	});
 }
+
 // send reminder message
 async function sendReminder(form) {
 	const client = new Client({
@@ -104,4 +105,4 @@ async function sendReminder(form) {
 }
 
 // Periodically send the schedule (interval in seconds)
-setInterval(schedule, (120 * 1000));
+setInterval(pendingSchedule, (120 * 1000));
