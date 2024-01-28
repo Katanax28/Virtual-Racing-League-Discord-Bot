@@ -6,7 +6,7 @@ const token = process.env.TOKEN;
 
 // Initialize the global variable with initial data that is presisted to disk
 async function saveScheduleData(scheduleData) {
-	let dataString = JSON.stringify(scheduleData, null, 2);
+	const dataString = JSON.stringify(scheduleData, null, 2);
 	fs.writeFile("scheduleData.json", dataString, (err) => {
 		if (err) throw err;
 		console.log("Data written to file");
@@ -30,6 +30,7 @@ parentPort.on("message", (message) => {
 	} = message;
 	// add a regex here to clean up pendingField
 	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
+	declinedField = declinedField.value.replace(/'|\\+|\n/g, "");
 	switch (type) {
 		case "init":
 			fs.readFile("scheduleData.json", (err, data) => {
@@ -38,6 +39,7 @@ parentPort.on("message", (message) => {
 				scheduleData.push({
 					id: messageId,
 					reminderTime: reminderTime,
+					logTime: logTime,
 					checkinChannelId: checkinChannelId,
 					modChannelId: modChannelId,
 					pendingField: pendingField,
@@ -75,8 +77,7 @@ function pendingSchedule() {
 	// parentPort.postMessage(scheduleData);
 	fs.readFile("scheduleData.json", (err, data) => {
 		if (err) throw err;
-		scheduleData = JSON.parse(data);
-		// console.log(scheduleData);
+		let scheduleData = JSON.parse(data);
 		const currentTime = new Date();
 
 		const remindersPast = scheduleData.filter(
@@ -86,25 +87,26 @@ function pendingSchedule() {
 			(item) => item.logTime < currentTime
 		);
 
+
 		remindersPast.forEach((form) => {
-			if(!form.reminderTimeElapsed){
-				sendReminder(form)
+			if (!form.reminderTimeElapsed) {
+				sendReminder(form);
 			}
-			const pollData = scheduleData.find((e) => e.id === form.id);
-			pollData.reminderTimeElapsed = true;
+			let updatedScheduleData = scheduleData.find((e) => e.id === form.id);
+			updatedScheduleData.reminderTimeElapsed = true;
+			console.log(`remindersPast executed`);
 		});
 
 		logTimePast.forEach((form) => {
-			// send log message
-			sendLog(form)
-			let updatedScheduleData = scheduleData.filter((item) => item.id !== form.id);
-			if (updatedScheduleData.length > 0) {
-				saveScheduleData(updatedScheduleData);
-			} else {
-				saveScheduleData([]);
-			}
+			sendLog(form);
+			scheduleData = scheduleData.filter((item) => item.id !== form.id);
 		});
 
+		if (scheduleData.length > 0) {
+			saveScheduleData(scheduleData);
+		} else {
+			saveScheduleData([]);
+		}
 	});
 }
 
@@ -135,4 +137,4 @@ async function sendLog(form) {
 }
 
 // Periodically send the schedule (interval in seconds)
-setInterval(pendingSchedule, (120 * 1000));
+setInterval(pendingSchedule, (5 * 1000));

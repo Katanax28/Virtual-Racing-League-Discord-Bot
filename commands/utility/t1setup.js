@@ -213,9 +213,9 @@ module.exports = {
 		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
 
 		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-		const testReminderTime = new Date(now.getTime() + 120 * 1000);
+		const testReminderTime = new Date(now.getTime() + 60 * 1000);
 		const logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
-		const testLogTime = new Date(now.getTime() + 20 * 1000);
+		const testLogTime = new Date(now.getTime() + 120 * 1000);
 
 		const embed = new EmbedBuilder()
 			.setTitle(`Tier 1 Attendance`)
