@@ -6,8 +6,8 @@
   <component name="ChangeListManager">
     <list default="true" id="da1a1d15-f156-4a8b-8a63-05941d532816" name="Changes" comment="">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/commands/utility/t1setup.js" beforeDir="false" afterPath="$PROJECT_DIR$/commands/utility/t1setup.js" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/workers/reminderWorker.js" beforeDir="false" afterPath="$PROJECT_DIR$/workers/reminderWorker.js" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/package-lock.json" beforeDir="false" afterPath="$PROJECT_DIR$/package-lock.json" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/workers/attendanceLogWorker.js" beforeDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -25,9 +25,12 @@
     <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
   </component>
   <component name="HighlightingSettingsPerFile">
-    <setting file="file://$PROJECT_DIR$/commands/utility/t1setup.js" root0="FORCE_HIGHLIGHTING" />
+    <setting file="file://$PROJECT_DIR$/commands/utility/t1setup.js" root0="SKIP_INSPECTION" />
     <setting file="file://$PROJECT_DIR$/index.js" root0="FORCE_HIGHLIGHTING" />
     <setting file="file://$PROJECT_DIR$/workers/reminderWorker.js" root0="FORCE_HIGHLIGHTING" />
+  </component>
+  <component name="MarkdownSettingsMigration">
+    <option name="stateVersion" value="1" />
   </component>
   <component name="ProjectColorInfo">{
   &quot;associatedIndex&quot;: 3
@@ -79,7 +82,8 @@
       <workItem from="1705575344956" duration="2706000" />
       <workItem from="1705610050633" duration="2605000" />
       <workItem from="1705662141115" duration="55873000" />
-      <workItem from="1706185588879" duration="9230000" />
+      <workItem from="1706185588879" duration="14079000" />
+      <workItem from="1706341414586" duration="27534000" />
     </task>
     <servers />
   </component>
