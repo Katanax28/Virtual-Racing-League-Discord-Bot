@@ -266,19 +266,6 @@ module.exports = {
 			(field) => field.name === "❌ Declined:"
 		);
 
-		// const attendanceLogWorker = new Worker('./workers/attendanceLogWorker.js');
-		// attendanceLogWorker.postMessage({
-		// 	title: title,
-		// 	token: client.token,
-		// 	countryName: countryName,
-		// 	declinedField: declinedField,
-		// 	modChannelId: modChannel.id,
-		// 	logTime: testLogTime.getTime()
-		// });
-		// attendanceLogWorker.on('error', (err) => {
-		// 	console.error('An error occurred in the worker:', err);
-		// });
-
 		const reminderWorker = new Worker("./workers/reminderWorker.js");
 		reminderWorker.postMessage({
 			type: "init",
