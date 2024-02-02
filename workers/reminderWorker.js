@@ -2,7 +2,7 @@ const fs = require("fs");
 require("dotenv").config();
 const { parentPort, workerData } = require("worker_threads");
 const { Client, Intents, GatewayIntentBits } = require("discord.js");
-const token = process.env.TOKEN;
+const token = process.env.DISCORD_TOKEN;
 
 // Initialize the global variable with initial data that is presisted to disk
 async function saveScheduleData(scheduleData) {
