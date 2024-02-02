@@ -9,7 +9,6 @@ async function saveScheduleData(scheduleData) {
 	const dataString = JSON.stringify(scheduleData, null, 2);
 	fs.writeFile("scheduleData.json", dataString, (err) => {
 		if (err) throw err;
-		console.log("Data written to file");
 	});
 }
 
@@ -94,7 +93,6 @@ function pendingSchedule() {
 			}
 			let updatedScheduleData = scheduleData.find((e) => e.id === form.id);
 			updatedScheduleData.reminderTimeElapsed = true;
-			console.log(`remindersPast executed`);
 		});
 
 		logTimePast.forEach((form) => {
@@ -137,4 +135,4 @@ async function sendLog(form) {
 }
 
 // Periodically send the schedule (interval in seconds)
-setInterval(pendingSchedule, (5 * 1000));
+setInterval(pendingSchedule, (120 * 1000));

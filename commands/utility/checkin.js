@@ -5,16 +5,12 @@ const {
 	SlashCommandBuilder,
 	PermissionFlagsBits,
 	EmbedBuilder,
-	AttachmentBuilder,
-	Client,
 } = require("discord.js");
-// const cron = require('node-cron');
 const { Worker } = require("worker_threads");
-const reminderWorker = new Worker("./workers/reminderWorker.js");
 
 module.exports = {
 	data: new SlashCommandBuilder()
-		.setName("t1setup")
+		.setName("checkin")
 		.setDescription("Creates the checkin for tier 1")
 		.addStringOption((option) =>
 			option
@@ -56,14 +52,42 @@ module.exports = {
 				.setDescription("Eg: Season 1, Round 1")
 				.setRequired(true)
 		)
+		.addNumberOption((option) =>
+			option
+				.setName("tier")
+				.setDescription("Tier of the checkin")
+				.setRequired(true)
+				.addChoices(
+					{ name: 'Tier 1', value: 1 },
+					{ name: 'Tier 2', value: 2 }
+				)
+		)
 
 		// Requires administrator permissions
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
 
 	async execute(interaction) {
 		const client = interaction.client;
+		let lineupChannelId;
+		let requiredRoleId;
+		let reserveRoleId;
 
-		// Create a mapping of the values to their corresponding names
+		const tier = interaction.options.get("tier");
+		if(tier.value === 1) {
+			lineupChannelId = "780986553689571358";
+			requiredRoleId = "786932803660283925";
+		}
+		else if(tier.value === 2) {
+			lineupChannelId = "789226527186223105";
+			requiredRoleId = "789474486277505045";
+		}
+		// else if(tier.value === 3) {
+		// 	lineupChannelId = "961004601757274133"
+		// 	requiredRoleId = "961009916024332308"
+		// }
+		reserveRoleId = "781171286562045965";
+
+		// Create a mapping of the country values to their corresponding names
 		const countryChoices = {
 			abu_dhabi: {
 				name: "Abu Dhabi",
@@ -171,12 +195,12 @@ module.exports = {
 		// Extract the country and title from the command
 		const countryOption = interaction.options.get("country");
 		const countryValue = countryOption.value;
-		const countryName = countryChoices[countryValue].name; // Use the mapping to get the name
+		const countryName = countryChoices[countryValue].name;
 		const title = interaction.options.getString("title");
-		const countryFlagLink = countryChoices[countryValue].link; // Use the mapping to get the flag link
+		const countryFlagLink = countryChoices[countryValue].link;
 
-		// Fetch the members from the tier 1 lineups message
-		const listChannel = await client.channels.fetch("1197943529285107742");
+		// Fetch the members from the corresponding tiers lineups message
+		const listChannel = await client.channels.fetch(lineupChannelId);
 		const messages = await listChannel.messages.fetch({ limit: 1 });
 		if (!messages.size) {
 			return interaction.reply("No messages found in the list channel.");
@@ -211,14 +235,13 @@ module.exports = {
 		nextSunday.setHours(18, 0, 0, 0); // Set the time to 6pm local Dutch time
 
 		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
-
 		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-		const testReminderTime = new Date(now.getTime() + 60 * 1000);
 		const logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
-		const testLogTime = new Date(now.getTime() + 120 * 1000);
+		// const testReminderTime = new Date(now.getTime() + 60 * 1000);
+		// const testLogTime = new Date(now.getTime() + 120 * 1000);
 
 		const embed = new EmbedBuilder()
-			.setTitle(`Tier 1 Attendance`)
+			.setTitle(`Tier ${tier.value} Attendance`)
 			.setDescription(
 				`**${title}: ${countryName}**\n<t:${unixTimestamp}:F>\nThis is <t:${unixTimestamp}:R>`
 			)
@@ -251,13 +274,11 @@ module.exports = {
 			})
 			.then((message) => {
 				messageFind = message;
-				console.log(`The ID of the sent message is ${message.id}`);
 			})
 			.catch(console.error);
 		const modChannel = await client.channels.fetch("1197557814135095296");
 
-		// const messagesFind = await checkinChannel.messages.fetch({ limit: 1 });
-		// const messageFind = messagesFind.first();
+
 		const embedFind = messageFind.embeds[0];
 		const pendingField = embedFind.fields.find(
 			(field) => field.name === "❓ Pending:"
@@ -269,8 +290,8 @@ module.exports = {
 		const reminderWorker = new Worker("./workers/reminderWorker.js");
 		reminderWorker.postMessage({
 			type: "init",
-			reminderTime: testReminderTime.getTime(),
-			logTime: testLogTime.getTime(),
+			reminderTime: reminderTime.getTime(),
+			logTime: logTime.getTime(),
 			title: title,
 			countryName: countryName,
 			pendingField: pendingField,
@@ -297,6 +318,26 @@ module.exports = {
 			// Check if the interaction is related to the specific message
 			if (message.id !== messageFind.id) return;
 
+
+
+			if(tier.value === 1) {
+				// For tier 1, user needs to have the tier 1 role.
+				if (!interaction.member.roles.cache.has(requiredRoleId)) {
+					return interaction.reply({
+						content: "You do not have the required role to interact with this button.",
+						ephemeral: true,
+					});
+				}
+			}else{
+				// For other tiers, user needs to have either the tier role or the reserve role.
+				if (!interaction.member.roles.cache.has(requiredRoleId) && !interaction.member.roles.cache.has(reserveRoleId)) {
+					return interaction.reply({
+						content: "You do not have the required role to interact with this button.",
+						ephemeral: true,
+					});
+				}
+			}
+
 			const embed = message.embeds[0];
 			const fields = {
 				"Accepted:": embed.fields.find(
@@ -312,28 +353,42 @@ module.exports = {
 			const userId = `<@${interaction.user.id}>`;
 			const targetField =
 				interaction.customId === "accept" ? "Accepted:" : "Declined:";
-			for (const [fieldName, field] of Object.entries(fields)) {
-				if(interaction.message.id === messageFind.id) {
-					if (field.value.includes(userId)) {
-						// If the user is already in the target field, do not modify the fields or the message
-						if (fieldName === targetField) {
-							await interaction.reply({
-								content: `You are already registered as ${fieldName}.`,
-								ephemeral: true,
-							});
-							return;
+
+			// If the user is not in the pending list, add them directly to the accepted or declined field
+			if (!fields["Pending:"].value.includes(userId) && !fields["Accepted:"].value.includes(userId) && !fields["Declined:"].value.includes(userId)) {
+				if (
+					fields[targetField].value === "None" ||
+					fields[targetField].value === ""
+				) {
+					fields[targetField].value = userId;
+				} else {
+					fields[targetField].value =
+						`${fields[targetField].value}\n${userId}`.trim();
+				}
+			} else {
+				for (const [fieldName, field] of Object.entries(fields)) {
+					if (interaction.message.id === messageFind.id) {
+						if (field.value.includes(userId)) {
+							// If the user is already in the target field, do not modify the fields or the message
+							if (fieldName === targetField) {
+								await interaction.reply({
+									content: `You are already registered as ${fieldName}.`,
+									ephemeral: true,
+								});
+								return;
+							}
+							field.value = field.value.replace(userId, "").trim();
+							if (
+								fields[targetField].value === "None" ||
+								fields[targetField].value === ""
+							) {
+								fields[targetField].value = userId;
+							} else {
+								fields[targetField].value =
+									`${fields[targetField].value}\n${userId}`.trim();
+							}
+							break;
 						}
-						field.value = field.value.replace(userId, "").trim();
-						if (
-							fields[targetField].value === "None" ||
-							fields[targetField].value === ""
-						) {
-							fields[targetField].value = userId;
-						} else {
-							fields[targetField].value =
-								`${fields[targetField].value}\n${userId}`.trim();
-						}
-						break;
 					}
 				}
 			}
