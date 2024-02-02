@@ -234,9 +234,29 @@ module.exports = {
 		);
 		nextSunday.setHours(18, 0, 0, 0); // Set the time to 6pm local Dutch time
 
-		const unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
-		const reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-		const logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
+		const nextSaturday = new Date(
+			now.getFullYear(),
+			now.getMonth(),
+			now.getDate() + (6 - now.getDay() + 7) % 7
+		);
+		nextSaturday.setHours(18, 0, 0, 0); // Set the time to 6pm local Dutch time
+
+		let unixTimestamp;
+		let reminderTime;
+		let logTime;
+		if(tier.value === 1) {
+			unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
+			reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
+			logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
+			console.log("Tier 1 activated, time:" + nextSunday.getTime())
+		}
+		if(tier.value === 2) {
+			unixTimestamp = Math.floor(nextSaturday.getTime() / 1000);
+			reminderTime = new Date(nextSaturday.getTime() - 48 * 60 * 60 * 1000);
+			logTime = new Date(nextSaturday.getTime() - 24 * 60 * 60 * 1000);
+			console.log("Tier 2 activated, time:" + nextSaturday.getTime())
+		}
+
 		// const testReminderTime = new Date(now.getTime() + 60 * 1000);
 		// const testLogTime = new Date(now.getTime() + 120 * 1000);
 
