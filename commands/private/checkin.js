@@ -62,6 +62,12 @@ module.exports = {
 					{ name: 'Tier 2', value: 2 }
 				)
 		)
+		.addNumberOption((option) =>
+			option
+				.setName("time")
+				.setDescription("Set time in British Time (24h format)")
+				.setRequired(true)
+		)
 
 		// Requires administrator permissions
 		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
@@ -199,6 +205,8 @@ module.exports = {
 		const title = interaction.options.getString("title");
 		const countryFlagLink = countryChoices[countryValue].link;
 
+		const sessionTime = interaction.options.getNumber("time");
+
 		// Fetch the members from the corresponding tiers lineups message
 		const listChannel = await client.channels.fetch(lineupChannelId);
 		const messages = await listChannel.messages.fetch({ limit: 1 });
@@ -232,14 +240,14 @@ module.exports = {
 			now.getMonth(),
 			now.getDate() + (7 - now.getDay() || 7)
 		);
-		nextSunday.setHours(18, 0, 0, 0); // Set the time to 6pm local Dutch time
+		nextSunday.setHours(sessionTime, 0, 0, 0); // Set the time to 6pm local Dutch time
 
 		const nextSaturday = new Date(
 			now.getFullYear(),
 			now.getMonth(),
 			now.getDate() + (6 - now.getDay() + 7) % 7
 		);
-		nextSaturday.setHours(18, 0, 0, 0); // Set the time to 6pm local Dutch time
+		nextSaturday.setHours(sessionTime, 0, 0, 0); // Set the time to 6pm local Dutch time
 
 		let unixTimestamp;
 		let reminderTime;
