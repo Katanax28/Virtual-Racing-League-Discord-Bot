@@ -1,5 +1,7 @@
 require('dotenv').config();
 const { google } = require('googleapis');
+const { OAuth2 } = google.auth;
+
 const { Client, GatewayIntentBits, EmbedBuilder } = require('discord.js');
 const client = new Client({
     intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
@@ -9,9 +11,21 @@ const discordChannelId = process.env.DISCORD_SIGNUP_CHANNEL_ID;
 const sheetsApiCredentials = JSON.parse(process.env.GOOGLE_SHEETS_API_CREDENTIALS); // Add this to your .env file
 const spreadsheetId = process.env.GOOGLE_SPREADSHEET_ID; // Add this to your .env file
 
+// Create an OAuth2 client
+const oauth2Client = new OAuth2(
+    sheetsApiCredentials.client_id,
+    sheetsApiCredentials.client_secret,
+    sheetsApiCredentials.redirect_uris[0]
+);
+
+// Set the credentials
+oauth2Client.setCredentials({
+    refresh_token: sheetsApiCredentials.refresh_token
+});
+
 let lastCheckedRow = null;
 
-const sheets = google.sheets({ version: 'v4', auth: sheetsApiCredentials });
+const sheets = google.sheets({ version: 'v4', auth: oauth2Client });
 
 async function getLastRow() {
     const response = await sheets.spreadsheets.values.get({
