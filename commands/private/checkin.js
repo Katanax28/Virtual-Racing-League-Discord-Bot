@@ -205,7 +205,10 @@ module.exports = {
 		const title = interaction.options.getString("title");
 		const countryFlagLink = countryChoices[countryValue].link;
 
-		const sessionTime = interaction.options.getNumber("time");
+		let sessionTime = interaction.options.getNumber("time");
+		if(sessionTime <= 12) {
+			sessionTime = sessionTime + 12;
+		}
 
 		// Fetch the members from the corresponding tiers lineups message
 		const listChannel = await client.channels.fetch(lineupChannelId);
