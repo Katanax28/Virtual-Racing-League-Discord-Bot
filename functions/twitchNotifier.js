@@ -41,7 +41,7 @@ async function checkLiveStatus() {
 client.once('ready', () => {
     console.log('Twitch notifications are ready');
     getTwitchAccessToken().then(() => {
-        setInterval(checkLiveStatus, 5000); // Check every minute
+        setInterval(checkLiveStatus, 60000); // Check every minute
     });
 });
 
