@@ -1,5 +1,4 @@
 require('./functions/twitchNotifier.js');
-require('./functions/signupSpreadsheetNotifier.js');
 
 require("dotenv").config();
 const fs = require("node:fs");
