@@ -11,6 +11,7 @@ async function saveScheduleData(scheduleData) {
 		if (err) throw err;
 	});
 }
+let globalMessageId;
 
 // Handle messages from the main thread
 parentPort.on("message", (message) => {
@@ -27,6 +28,7 @@ parentPort.on("message", (message) => {
 		messageId,
 		modChannelId,
 	} = message;
+	globalMessageId = messageId;
 	// add a regex here to clean up pendingField
 	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
 	declinedField = declinedField.value.replace(/'|\\+|\n/g, "");
@@ -115,11 +117,17 @@ async function sendReminder(form) {
 	});
 	await client.login(token);
 	const checkinChannel = await client.channels.fetch(form.checkinChannelId);
-	if(form.pendingField !== "None") {
-		await checkinChannel.send(
-			`Reminder to those who have not yet confirmed their attendance:\n${form.pendingField}`
-		);
+	try {
+		const message = await checkinChannel.messages.fetch(globalMessageId);
+		if(form.pendingField !== "None") {
+			await checkinChannel.send(
+				`Reminder to those who have not yet confirmed their attendance:\n${form.pendingField}`
+			);
+		}
+	} catch (error) {
+		console.log('Message does not exist or is deleted');
 	}
+
 }
 async function sendLog(form) {
 	const client = new Client({
@@ -127,11 +135,17 @@ async function sendLog(form) {
 	});
 	await client.login(token);
 	const checkinChannel = await client.channels.fetch(form.modChannelId);
-	if(form.declinedField !== "None") {
-		await checkinChannel.send(
-			`Attendance log:\n${form.declinedField}`
-		);
+	try {
+		const message = await checkinChannel.messages.fetch(globalMessageId);
+		if(form.declinedField !== "None") {
+			await checkinChannel.send(
+				`Attendance log:\n${form.declinedField}`
+			);
+		}
+	} catch (error){
+		console.log('Message does not exist or is deleted');
 	}
+
 }
 
 // Periodically send the schedule (interval in seconds)
