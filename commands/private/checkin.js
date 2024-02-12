@@ -301,15 +301,31 @@ module.exports = {
 		let messageFind = undefined;
 		// Creating the check-in
 		const checkinChannel = await client.channels.fetch(checkinChannelId);
-		await checkinChannel
-			.send({
-				embeds: [embed],
-				components: [row],
-			})
-			.then((message) => {
-				messageFind = message;
-			})
-			.catch(console.error);
+		if(tier.value === 1) {
+			await checkinChannel
+				.send({
+					content: `<@&${requiredRoleId}>`,
+					embeds: [embed],
+					components: [row],
+				})
+				.then((message) => {
+					messageFind = message;
+				})
+				.catch(console.error);
+		}
+		if(tier.value === 2) {
+			await checkinChannel
+				.send({
+					content: `<@&${requiredRoleId}> <@&${reserveRoleId}>`,
+					embeds: [embed],
+					components: [row],
+				})
+				.then((message) => {
+					messageFind = message;
+				})
+				.catch(console.error);
+		}
+
 		const modChannel = await client.channels.fetch(modChannelId);
 
 
