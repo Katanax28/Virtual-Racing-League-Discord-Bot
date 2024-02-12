@@ -71,7 +71,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 	}
 });
 
-// Old code before using slash commands
+// Prizm messages
 client.on("messageCreate", (msg) => {
 	if (msg.content === "woah") {
 		msg.reply("prizm!");
@@ -79,15 +79,10 @@ client.on("messageCreate", (msg) => {
 		msg.reply("Prizm!");
 	} else if (msg.content === "WOAH") {
 		msg.reply("PRIZM!");
-	} else if (msg.content.includes("woah" || "Woah" || "WOAH")) {
-		msg.reply("prizm!");
-	}
-	if (
-		msg.content.startsWith("T1Checkin") &&
-		msg.member.roles.cache.has("781184561572216832") &&
-		msg.channel.id === "1197557758778679337"
-	) {
-		msg.channel.send("<@401389864077099018>");
+	}else if(msg.content === ("WoAh" || "wOaH")) {
+		msg.reply("PrIzM!");
+	} else if (msg.content.toLowerCase().includes("woah")) {
+		msg.reply("Prizm!");
 	}
 });
 

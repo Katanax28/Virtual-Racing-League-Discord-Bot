@@ -7,6 +7,9 @@ const {
 	EmbedBuilder,
 } = require("discord.js");
 const { Worker } = require("worker_threads");
+require("dotenv").config();
+modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
+checkinChannelId = process.env.DISCORD_CHECKIN_CHANNEL_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -206,7 +209,7 @@ module.exports = {
 		const countryFlagLink = countryChoices[countryValue].link;
 
 		let sessionTime = interaction.options.getNumber("time");
-		if(sessionTime <= 12) {
+		if(sessionTime < 12) {
 			sessionTime = sessionTime + 12;
 		}
 
@@ -297,7 +300,7 @@ module.exports = {
 			);
 		let messageFind = undefined;
 		// Creating the check-in
-		const checkinChannel = await client.channels.fetch("1197557758778679337");
+		const checkinChannel = await client.channels.fetch(checkinChannelId);
 		await checkinChannel
 			.send({
 				embeds: [embed],
@@ -307,7 +310,7 @@ module.exports = {
 				messageFind = message;
 			})
 			.catch(console.error);
-		const modChannel = await client.channels.fetch("1197557814135095296");
+		const modChannel = await client.channels.fetch(modChannelId);
 
 
 		const embedFind = messageFind.embeds[0];
