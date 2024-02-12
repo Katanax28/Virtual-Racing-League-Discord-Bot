@@ -27,11 +27,12 @@ parentPort.on("message", (message) => {
 		messageId,
 		modChannelId,
 	} = message;
-	console.log("declined:\n" + declinedField + "\npending:\n" + pendingField);
+
 	globalMessageId = messageId;
 	// add a regex here to clean up pendingField
 	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
 	declinedField = declinedField.value.replace(/'|\\+|\n/g, "");
+	console.log("declined:\n" + declinedField.value + "\npending:\n" + pendingField.value);
 	switch (type) {
 		case "init":
 			fs.readFile("scheduleData.json", (err, data) => {
