@@ -15,7 +15,6 @@ let globalMessageId;
 
 // Handle messages from the main thread
 parentPort.on("message", (message) => {
-	console.log(message);
 	let {
 		type,
 		reminderTime,
@@ -28,6 +27,7 @@ parentPort.on("message", (message) => {
 		messageId,
 		modChannelId,
 	} = message;
+	console.log("declined:\n" + declinedField + "\npending:\n" + pendingField);
 	globalMessageId = messageId;
 	// add a regex here to clean up pendingField
 	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
