@@ -283,21 +283,22 @@ module.exports = {
 			.setThumbnail(countryFlagLink)
 			.addFields(
 				{
-					name: "✅ Accepted:",
+					name: "✅ Accepted",
 					value: acceptedMembers.join("\n") || "None",
 					inline: true,
 				},
 				{
-					name: "❌ Declined:",
+					name: "❌ Declined",
 					value: declinedMembers.join("\n") || "None",
 					inline: true,
 				},
 				{
-					name: "❓ Pending:",
+					name: "❓ Pending",
 					value: pendingMembers.join("\n") || "None",
 					inline: true,
 				}
-			);
+			)
+			.setFooter(`No drivers have accepted yet.`)
 		let messageFind = undefined;
 		// Creating the check-in
 		const checkinChannel = await client.channels.fetch(checkinChannelId);
@@ -390,22 +391,22 @@ module.exports = {
 
 			const embed = message.embeds[0];
 			const fields = {
-				"Accepted:": embed.fields.find(
-					(field) => field.name === "✅ Accepted:"
+				"Accepted": embed.fields.find(
+					(field) => field.name === "✅ Accepted"
 				),
-				"Declined:": embed.fields.find(
-					(field) => field.name === "❌ Declined:"
+				"Declined": embed.fields.find(
+					(field) => field.name === "❌ Declined"
 				),
-				"Pending:": embed.fields.find((field) => field.name === "❓ Pending:"),
+				"Pending": embed.fields.find((field) => field.name === "❓ Pending"),
 			};
 
 			// Find the user in the fields and move them to the appropriate field
 			const userId = `<@${interaction.user.id}>`;
 			const targetField =
-				interaction.customId === "accept" ? "Accepted:" : "Declined:";
+				interaction.customId === "accept" ? "Accepted" : "Declined";
 
 			// If the user is not in the pending list, add them directly to the accepted or declined field
-			if (!fields["Pending:"].value.includes(userId) && !fields["Accepted:"].value.includes(userId) && !fields["Declined:"].value.includes(userId)) {
+			if (!fields["Pending"].value.includes(userId) && !fields["Accepted"].value.includes(userId) && !fields["Declined"].value.includes(userId)) {
 				if (
 					fields[targetField].value === "None" ||
 					fields[targetField].value === ""
@@ -453,12 +454,25 @@ module.exports = {
 				}
 			}
 
+			// Split the value of each field by newline to get an array of members
+			const acceptedMembersArray = fields["Accepted"].value.split("\n");
+			const declinedMembersArray = fields["Declined"].value.split("\n");
+			const pendingMembersArray = fields["Pending"].value.split("\n");
+
+// Get the length of each array to find the count of members
+			const acceptedCount = acceptedMembersArray[0] === "None" ? 0 : acceptedMembersArray.length;
+			const declinedCount = declinedMembersArray[0] === "None" ? 0 : declinedMembersArray.length;
+			const pendingCount = pendingMembersArray[0] === "None" ? 0 : pendingMembersArray.length;
+
+// Add these counts to the footer of the embed
+			embed.setFooter(`Accepted: ${acceptedCount}, Declined: ${declinedCount}, Pending: ${pendingCount}`);
+
 			// Edit the message with the new content
 			await message.edit({ embeds: [embed] });
 			reminderWorker.postMessage({
 				type: "update",
-				pendingField: fields["Pending:"],
-				declinedField: fields["Declined:"],
+				pendingField: fields["Pending"],
+				declinedField: fields["Declined"],
 				messageId: messageFind.id,
 			});
 
