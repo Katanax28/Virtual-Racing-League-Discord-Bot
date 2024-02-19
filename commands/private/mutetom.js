@@ -20,7 +20,7 @@ module.exports = {
         const memberId = '326749446312558592'; // Replace with the actual member ID
         const tom = await fetchMember(guild, memberId);
         if (tom) {
-            console.log(`Fetched member: ${tom.user.username}`);
+            console.log(`${tom.user.username} has been muted`);
         } else {
             console.log('Member not found');
         }
