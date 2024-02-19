@@ -73,7 +73,8 @@ module.exports = {
 		)
 
 		// Requires administrator permissions
-		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
+		.setDefaultMemberPermissions(PermissionFlagsBits.Administrator)
+		.setDMPermission(false),
 
 	async execute(interaction) {
 		const client = interaction.client;
