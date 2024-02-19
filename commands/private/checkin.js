@@ -466,7 +466,7 @@ module.exports = {
 			const pendingCount = pendingMembersArray[0] === "None" ? 0 : pendingMembersArray.length;
 
 // Add these counts to the footer of the embed
-			embed.setFooter({text: `Accepted: ${acceptedCount}, Declined: ${declinedCount}, Pending: ${pendingCount}`});
+			// embed.setFooter({text: `Accepted: ${acceptedCount}, Declined: ${declinedCount}, Pending: ${pendingCount}`});
 
 			// Edit the message with the new content
 			await message.edit({ embeds: [embed] });
