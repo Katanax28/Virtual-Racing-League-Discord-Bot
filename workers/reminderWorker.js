@@ -118,6 +118,7 @@ async function sendReminder(form) {
 	});
 	await client.login(token);
 	const checkinChannel = await client.channels.fetch(form.checkinChannelId);
+	const logChannel = await client.channels.fetch("1197557814135095296");
 	try {
 		const message = await checkinChannel.messages.fetch(globalMessageId);
 		if(form.pendingField !== "None") {
@@ -126,7 +127,7 @@ async function sendReminder(form) {
 			);
 		}
 	} catch (error) {
-		console.log('Message does not exist or is deleted');
+		logChannel.send('Message does not exist or is deleted');
 	}
 
 }
@@ -135,16 +136,18 @@ async function sendLog(form) {
 		intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
 	});
 	await client.login(token);
-	const checkinChannel = await client.channels.fetch(form.modChannelId);
+	const checkinChannel = await client.channels.fetch(form.checkinChannelId);
+	const modChannel = await client.channels.fetch(form.modChannelId);
+	const logChannel = await client.channels.fetch("1197557814135095296");
 	try {
 		const message = await checkinChannel.messages.fetch(globalMessageId);
 		if(form.declinedField !== "None") {
-			await checkinChannel.send(
+			await modChannel.send(
 				`Attendance log:\n${form.declinedField}`
 			);
 		}
 	} catch (error){
-		console.log('Message does not exist or is deleted');
+		logChannel.send('Message does not exist or is deleted: ');
 	}
 
 }
