@@ -6,8 +6,24 @@ module.exports = {
         .setDescription('Mutes Tom for a minute')
         .setDefaultMemberPermissions(PermissionFlagsBits.MuteMembers),
     async execute(interaction) {
-        const guild = interaction.guild;
-        const tom = guild.members.cache.find(member => member.user.username === 'Tom');
+        async function fetchMember(guild, memberId) {
+            try {
+                return await guild.members.fetch(memberId);
+            } catch (error) {
+                console.error('Failed to fetch member:', error);
+                return null;
+            }
+        }
+
+// Usage
+        const guild = interaction.guild; // Get the guild from the interaction
+        const memberId = '326749446312558592'; // Replace with the actual member ID
+        const tom = await fetchMember(guild, memberId);
+        if (tom) {
+            console.log(`Fetched member: ${tom.user.username}`);
+        } else {
+            console.log('Member not found');
+        }
 
         if (!tom) {
             await interaction.reply('User Tom not found.');
@@ -21,7 +37,7 @@ module.exports = {
 
         try {
             await tom.voice.setMute(true);
-            await interaction.reply('Tom has been muted for a minute.');
+            await interaction.reply('Tom has been muted.');
 
             setTimeout(async () => {
                 await tom.voice.setMute(false);
