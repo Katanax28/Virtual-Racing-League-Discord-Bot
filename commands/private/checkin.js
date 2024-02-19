@@ -299,7 +299,7 @@ module.exports = {
 					inline: true,
 				}
 			)
-			.setFooter(`No drivers have accepted yet.`)
+			.setFooter({text: `No drivers have accepted yet.`})
 		let messageFind = undefined;
 		// Creating the check-in
 		const checkinChannel = await client.channels.fetch(checkinChannelId);
@@ -466,7 +466,7 @@ module.exports = {
 			const pendingCount = pendingMembersArray[0] === "None" ? 0 : pendingMembersArray.length;
 
 // Add these counts to the footer of the embed
-			embed.setFooter(`Accepted: ${acceptedCount}, Declined: ${declinedCount}, Pending: ${pendingCount}`);
+			embed.setFooter({text: `Accepted: ${acceptedCount}, Declined: ${declinedCount}, Pending: ${pendingCount}`});
 
 			// Edit the message with the new content
 			await message.edit({ embeds: [embed] });
