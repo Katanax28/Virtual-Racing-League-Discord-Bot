@@ -333,10 +333,10 @@ module.exports = {
 
 			const embedFind = messageFind.embeds[0];
 			const pendingField = embedFind.fields.find(
-				(field) => field.name === "❓ Pending:"
+				(field) => field.name === "❓ Pending"
 			);
 			const declinedField = embedFind.fields.find(
-				(field) => field.name === "❌ Declined:"
+				(field) => field.name === "❌ Declined"
 			);
 
 			const reminderWorker = new Worker("./workers/reminderWorker.js");
