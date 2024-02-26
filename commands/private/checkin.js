@@ -299,7 +299,7 @@ module.exports = {
 						inline: true,
 					}
 				)
-				// .setFooter({text: `No drivers have accepted yet.`})
+				.setFooter({text: `No drivers have accepted yet.`})
 			let messageFind = undefined;
 			// Creating the check-in
 			const checkinChannel = await client.channels.fetch(checkinChannelId);
@@ -391,13 +391,9 @@ module.exports = {
 
 				const embed = message.embeds[0];
 				const fields = {
-					"Accepted": embed.fields.find(
-						(field) => field.name === "✅ Accepted"
-					),
-					"Declined": embed.fields.find(
-						(field) => field.name === "❌ Declined"
-					),
-					"Pending": embed.fields.find((field) => field.name === "❓ Pending"),
+					"Accepted": embed.fields.find((field) => field.name.startsWith("✅ Accepted")),
+					"Declined": embed.fields.find((field) => field.name.startsWith("❌ Declined")),
+					"Pending": embed.fields.find((field) => field.name.startsWith("❓ Pending")),
 				};
 
 				// Find the user in the fields and move them to the appropriate field
@@ -465,10 +461,15 @@ module.exports = {
 				const pendingCount = pendingMembersArray[0] === "None" ? 0 : pendingMembersArray.length;
 
 // Add these counts to the footer of the embed
-				// embed.setFooter({text: `Accepted: ${acceptedCount}, Declined: ${declinedCount}, Pending: ${pendingCount}`});
+				// embed.footer.text = `Accepted: ${acceptedCount}, Declined: ${declinedCount}, Pending: ${pendingCount}`;
+
+				fields["Accepted"].name = `✅ Accepted (${acceptedCount})`;
+				fields["Declined"].name = `❌ Declined (${declinedCount})`;
+				fields["Pending"].name = `❓ Pending (${pendingCount})`;
 
 				// Edit the message with the new content
 				await message.edit({embeds: [embed]});
+
 				reminderWorker.postMessage({
 					type: "update",
 					pendingField: fields["Pending"],
