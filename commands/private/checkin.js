@@ -396,6 +396,8 @@ module.exports = {
 					"Pending": embed.fields.find((field) => field.name.startsWith("❓ Pending")),
 				};
 
+
+
 				// Find the user in the fields and move them to the appropriate field
 				const userId = `<@${interaction.user.id}>`;
 				const targetField =
@@ -491,6 +493,24 @@ module.exports = {
 						console.error('An error occurred:', error);
 					}
 				}
+
+				async function fetchMember(guild, memberId) {
+					try {
+						return await guild.members.fetch(memberId);
+					} catch (error) {
+						console.error('Failed to fetch member:', error);
+						return null;
+					}
+				}
+
+				const guild = interaction.guild; // Get the guild from the interaction
+				const member = await fetchMember(guild, interaction.user.id);
+				if (member) {
+					console.log(`${member.user.username} has moved to ${targetField}`);
+				} else {
+					console.log('Member not found');
+				}
+
 			});
 
 		} catch (error) {

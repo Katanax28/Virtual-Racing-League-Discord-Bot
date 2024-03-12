@@ -4,7 +4,7 @@ module.exports = {
     data: new SlashCommandBuilder()
         .setName('mutetom')
         .setDescription('Mutes Tom for a minute')
-        .setDefaultMemberPermissions(PermissionFlagsBits.MuteMembers),
+        .setDefaultMemberPermissions(PermissionFlagsBits.Administrator),
     async execute(interaction) {
         async function fetchMember(guild, memberId) {
             try {
@@ -42,7 +42,7 @@ module.exports = {
             setTimeout(async () => {
                 await tom.voice.setMute(false);
                 await interaction.followUp('Tom has been unmuted.');
-            }, 60000); // Unmute after 60000 milliseconds (1 minute)
+            }, 10000); // Unmute after 1000 milliseconds (10 seconds)
         } catch (error) {
             console.error(error);
             await interaction.reply('Failed to mute Tom.');

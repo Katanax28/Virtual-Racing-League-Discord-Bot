@@ -32,7 +32,7 @@ parentPort.on("message", (message) => {
 	// add a regex here to clean up pendingField
 	pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
 	declinedField = declinedField.value.replace(/'|\\+|\n/g, "");
-	console.log("declined:\n" + declinedField + "\npending:\n" + pendingField);
+	// console.log("declined:\n" + declinedField + "\npending:\n" + pendingField);
 	switch (type) {
 		case "init":
 			fs.readFile("scheduleData.json", (err, data) => {
