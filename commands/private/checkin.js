@@ -502,13 +502,17 @@ module.exports = {
 						return null;
 					}
 				}
-
-				const guild = interaction.guild; // Get the guild from the interaction
-				const member = await fetchMember(guild, interaction.user.id);
-				if (member) {
-					console.log(`${member.user.username} has moved to ${targetField}`);
-				} else {
-					console.log('Member not found');
+				try{
+					const guild = interaction.guild; // Get the guild from the interaction
+					const member = await fetchMember(guild, interaction.user.id);
+					if (member) {
+						console.log(`${member.user.username} has moved to ${targetField}`);
+					} else {
+						console.log('Member not found');
+					}
+				}
+				catch (error) {
+					console.error('Failed to log the change:', error);
 				}
 
 			});
