@@ -16,25 +16,35 @@ let twitchAccessToken = null;
 let isLive = false;
 
 async function getTwitchAccessToken() {
-    const response = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${twitchClientId}&client_secret=${twitchClientSecret}&grant_type=client_credentials`);
-    twitchAccessToken = response.data.access_token;
+    try {
+        const response = await axios.post(`https://id.twitch.tv/oauth2/token?client_id=${twitchClientId}&client_secret=${twitchClientSecret}&grant_type=client_credentials`);
+        twitchAccessToken = response.data.access_token;
+    }
+    catch (error) {
+        console.error('Failed to get Twitch access token:', error);
+    }
 }
 
 async function checkLiveStatus() {
-    const response = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${twitchChannelName}`, {
-        headers: {
-            'Client-ID': twitchClientId,
-            'Authorization': `Bearer ${twitchAccessToken}`
-        }
-    });
+    try {
+        const response = await axios.get(`https://api.twitch.tv/helix/streams?user_login=${twitchChannelName}`, {
+            headers: {
+                'Client-ID': twitchClientId,
+                'Authorization': `Bearer ${twitchAccessToken}`
+            }
+        });
 
-    const streamData = response.data.data[0];
-    if (streamData && !isLive) {
-        isLive = true;
-        const discordChannel = await client.channels.fetch(discordChannelId);
-        discordChannel.send(`We are live! https://twitch.tv/${streamData.user_name} @everyone`);
-    } else if (!streamData) {
-        isLive = false;
+        const streamData = response.data.data[0];
+        if (streamData && !isLive) {
+            isLive = true;
+            const discordChannel = await client.channels.fetch(discordChannelId);
+            discordChannel.send(`We are live! https://twitch.tv/${streamData.user_name} @everyone`);
+        } else if (!streamData) {
+            isLive = false;
+        }
+    }
+    catch (error) {
+        console.error('Failed to check live status:', error);
     }
 }
 

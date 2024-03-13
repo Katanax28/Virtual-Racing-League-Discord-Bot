@@ -42,7 +42,7 @@ module.exports = {
             setTimeout(async () => {
                 await tom.voice.setMute(false);
                 await interaction.followUp('Tom has been unmuted.');
-            }, 10000); // Unmute after 1000 milliseconds (10 seconds)
+            }, 10000); // Unmute after 10000 milliseconds (10 seconds)
         } catch (error) {
             console.error(error);
             await interaction.reply('Failed to mute Tom.');
