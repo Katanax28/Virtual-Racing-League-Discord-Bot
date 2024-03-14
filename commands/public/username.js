@@ -11,6 +11,14 @@ module.exports = {
                 .setRequired(true)),
 
     async execute(interaction) {
+        async function fetchMember(guild, memberId) {
+            try {
+                return await guild.members.fetch(memberId);
+            } catch (error) {
+                console.error('Failed to fetch member:', error);
+                return null;
+            }
+        }
         try{
             const username = interaction.options.get("username");
             const usernameValue = username.value;
