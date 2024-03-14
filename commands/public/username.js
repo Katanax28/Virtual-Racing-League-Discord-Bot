@@ -26,8 +26,10 @@ module.exports = {
             const member = await fetchMember(guild, interaction.user.id);
             if (member) {
                 await member.setNickname(usernameValue);
+                await interaction.reply(`Username updated to ${usernameValue}!`);
                 console.log(`${member.user.username} has updated their username to ${usernameValue}`);
             } else {
+                await interaction.reply(`Something went wrong. Please try again.`);
                 console.log('username change error: Member not found');
             }
         }
