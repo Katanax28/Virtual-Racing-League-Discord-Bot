@@ -6,7 +6,7 @@ module.exports = {
         .setDescription('Updates your username')
         .addStringOption((option) =>
             option
-                .setName("Username")
+                .setName("username")
                 .setDescription("Your new username")
                 .setRequired(true)),
 
