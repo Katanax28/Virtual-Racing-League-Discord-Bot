@@ -34,7 +34,7 @@ module.exports = {
             }
         }
         catch (error) {
-            console.error('Failed to execute username command', error);
+            console.error('Missing permissions on member: ${usernameValue}');
         }
     },
 };
