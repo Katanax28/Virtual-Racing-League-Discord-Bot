@@ -9,7 +9,7 @@ const {
 const { Worker } = require("worker_threads");
 require("dotenv").config();
 modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
-checkinChannelId = process.env.DISCORD_CHECKIN_CHANNEL_ID;
+checkinChannelId = process.env.DISCORD_TEST_CHANNEL_ID;
 
 module.exports = {
 	data: new SlashCommandBuilder()
@@ -506,7 +506,12 @@ module.exports = {
 					const guild = interaction.guild; // Get the guild from the interaction
 					const member = await fetchMember(guild, interaction.user.id);
 					if (member) {
-						console.log(`${member.user.username} has moved to ${targetField}`);
+						var currentdate = new Date();
+						var datetime = currentdate.getDay() + "/" + currentdate.getMonth()
+							+ "/" + currentdate.getFullYear() + " @ "
+							+ currentdate.getHours() + ":"
+							+ currentdate.getMinutes() + ":" + currentdate.getSeconds();
+						console.log(`${datetime} | ${member.user.username} has moved to ${targetField} for ${title}: ${countryName} checkin`);
 					} else {
 						console.log('Member not found');
 					}
