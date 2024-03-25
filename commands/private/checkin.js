@@ -68,7 +68,7 @@ module.exports = {
         .addNumberOption((option) =>
             option
                 .setName("time")
-                .setDescription("Set time in British Time (24h format)")
+                .setDescription("Set time in UTC")
                 .setRequired(true)
         )
 
