@@ -3,7 +3,7 @@ require('./functions/twitchNotifier.js');
 require("dotenv").config();
 const fs = require("node:fs");
 const path = require("node:path");
-const { Client, Collection, Events, GatewayIntentBits } = require("discord.js");
+const { Client, Collection, Events, GatewayIntentBits, ActivityType } = require("discord.js");
 const token = process.env.DISCORD_TOKEN;
 
 const client = new Client({
@@ -16,6 +16,8 @@ const client = new Client({
 });
 
 client.commands = new Collection();
+
+client.user.setActivity('tier 2 drivers crash', { type: ActivityType.Watching });
 
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
