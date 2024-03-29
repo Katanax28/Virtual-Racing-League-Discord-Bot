@@ -78,6 +78,7 @@ module.exports = {
 
     async execute(interaction) {
         try {
+            await interaction.deferReply();
             const client = interaction.client;
             let lineupChannelId;
             let requiredRoleId;
@@ -218,7 +219,8 @@ module.exports = {
             const listChannel = await client.channels.fetch(lineupChannelId);
             const messages = await listChannel.messages.fetch({limit: 1});
             if (!messages.size) {
-                return interaction.reply("No messages found in the list channel.");
+                await interaction.editReply("No messages found in the list channel.");
+                return;
             }
             const message = messages.first();
             const mentionMatches = message.content.match(/<@(\d+)>/g);
@@ -357,7 +359,7 @@ module.exports = {
             });
 
             // Confirmation of command
-            await interaction.reply({
+            await interaction.editReply({
                 content: `Tier 1 checkin complete.`,
                 ephemeral: true,
             });
@@ -365,33 +367,38 @@ module.exports = {
             // When an interaction with the buttons occurs
             client.on("interactionCreate", async (interaction) => {
                 if (!interaction.isButton()) return;
-                let currentdate = new Date();
-                if (currentdate > reminderTime) {
-                    return interaction.reply({
-                        content: "You can no longer check in or out. If you have a good reason for missing the deadline, please message an admin.",
-                    });
-                }
+                await interaction.deferReply();
                 const message = await interaction.message.fetch();
 
                 // Check if the interaction is related to the specific message
                 if (message.id !== messageFind.id) return;
 
+                let currentdate = new Date();
+                if (currentdate > logTime) {
+                    await interaction.editReply({
+                        content: "You can no longer check in or out. If you have a good reason for missing the deadline, please message an admin.",
+                        ephemeral: true,
+                    });
+                    return;
+                }
 
                 if (tier.value === 1) {
                     // For tier 1, user needs to have the tier 1 role.
                     if (!interaction.member.roles.cache.has(requiredRoleId)) {
-                        return interaction.reply({
+                        await interaction.editReply({
                             content: "You do not have the required role to interact with this button.",
                             ephemeral: true,
                         });
+                        return;
                     }
                 } else {
                     // For other tiers, user needs to have either the tier role or the reserve role.
                     if (!interaction.member.roles.cache.has(requiredRoleId) && !interaction.member.roles.cache.has(reserveRoleId)) {
-                        return interaction.reply({
+                        await interaction.editReply({
                             content: "You do not have the required role to interact with this button.",
                             ephemeral: true,
                         });
+                        return;
                     }
                 }
 
@@ -425,7 +432,7 @@ module.exports = {
                             if (field.value.includes(userId)) {
                                 // If the user is already in the target field, do not modify the fields or the message
                                 if (fieldName === targetField) {
-                                    await interaction.reply({
+                                    await interaction.editReply({
                                         content: `You are already registered as ${fieldName}.`,
                                         ephemeral: true,
                                     });
@@ -485,7 +492,7 @@ module.exports = {
                 });
 
                 if (!interaction.replied && !interaction.deferred) {
-                    await interaction.reply({
+                    await interaction.editReply({
                         content: "Attendance updated.",
                         ephemeral: true,
                     });
