@@ -1,15 +1,23 @@
-const {
-    ActionRowBuilder,
-    ButtonBuilder,
-    ButtonStyle,
-    SlashCommandBuilder,
-    PermissionFlagsBits,
-    EmbedBuilder,
-} = require("discord.js");
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, } = require("discord.js");
 const {Worker} = require("worker_threads");
 require("dotenv").config();
 modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
 checkinChannelId = process.env.DISCORD_CHECKIN_CHANNEL_ID;
+
+// function list
+function createButton(customId, label, style) {
+    return new ButtonBuilder()
+        .setCustomId(customId)
+        .setLabel(label)
+        .setStyle(style);
+}
+
+async function editInteractionReply(interaction, content) {
+    await interaction.editReply({
+        content: content,
+        ephemeral: true,
+    });
+}
 
 module.exports = {
     data: new SlashCommandBuilder()
@@ -226,14 +234,8 @@ module.exports = {
             const mentionMatches = message.content.match(/<@(\d+)>/g);
 
             // Create the accept and decline buttons
-            const accept = new ButtonBuilder()
-                .setCustomId("accept")
-                .setLabel("Accept")
-                .setStyle(ButtonStyle.Success);
-            const decline = new ButtonBuilder()
-                .setCustomId("decline")
-                .setLabel("Decline")
-                .setStyle(ButtonStyle.Danger);
+            createButton("accept", "Accept", ButtonStyle.Success);
+            createButton("decline", "Decline", ButtonStyle.Danger);
 
             const row = new ActionRowBuilder().addComponents(accept, decline);
 
@@ -305,33 +307,18 @@ module.exports = {
             let messageFind = undefined;
             // Creating the check-in
             const checkinChannel = await client.channels.fetch(checkinChannelId);
-            if (tier.value === 1) {
-                await checkinChannel
-                    .send({
-                        content: `<@&${requiredRoleId}>`,
-                        embeds: [embed],
-                        components: [row],
-                    })
-                    .then((message) => {
-                        messageFind = message;
-                    })
-                    .catch(console.error);
-            }
-            if (tier.value === 2) {
-                await checkinChannel
-                    .send({
-                        content: `<@&${requiredRoleId}> <@&${reserveRoleId}>`,
-                        embeds: [embed],
-                        components: [row],
-                    })
-                    .then((message) => {
-                        messageFind = message;
-                    })
-                    .catch(console.error);
-            }
+            await checkinChannel
+                .send({
+                    content: `<@&${requiredRoleId}>`,
+                    embeds: [embed],
+                    components: [row],
+                })
+                .then((message) => {
+                    messageFind = message;
+                })
+                .catch(console.error);
 
             const modChannel = await client.channels.fetch(modChannelId);
-
 
             const embedFind = messageFind.embeds[0];
             const pendingField = embedFind.fields.find(
@@ -359,14 +346,28 @@ module.exports = {
             });
 
             // Confirmation of command
-            await interaction.editReply({
-                content: `Tier 1 checkin complete.`,
-                ephemeral: true,
-            });
+            await editInteractionReply(interaction, `Tier 1 checkin complete.`)
 
             // When an interaction with the buttons occurs
             client.on("interactionCreate", async (interaction) => {
                 if (!interaction.isButton()) return;
+                try{
+                    const guild = interaction.guild; // Get the guild from the interaction
+                    const member = await fetchMember(guild, interaction.user.id);
+                    if (member) {
+                        let newDate = new Date();
+                        let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
+                            + "/" + newDate.getFullYear() + " @ "
+                            + newDate.getHours() + ":"
+                            + newDate.getMinutes() + ":" + newDate.getSeconds();
+                        console.log(`${datetime} | ${member.user.username} has interacted with a button`);
+                    } else {
+                        console.log('Critical error: Member not found');
+                    }
+                } catch (error) {
+                    console.error('Something went wrong, your program sucks:', error);
+                }
+
                 await interaction.deferReply();
                 const message = await interaction.message.fetch();
 
@@ -375,31 +376,14 @@ module.exports = {
 
                 let currentdate = new Date();
                 if (currentdate > logTime) {
-                    await interaction.editReply({
-                        content: "You can no longer check in or out. If you have a good reason for missing the deadline, please message an admin.",
-                        ephemeral: true,
-                    });
+                    await editInteractionReply(interaction, "The deadline for checking in has passed. If you have a good reason for missing the deadline, please message an admin.");
                     return;
                 }
 
-                if (tier.value === 1) {
-                    // For tier 1, user needs to have the tier 1 role.
-                    if (!interaction.member.roles.cache.has(requiredRoleId)) {
-                        await interaction.editReply({
-                            content: "You do not have the required role to interact with this button.",
-                            ephemeral: true,
-                        });
-                        return;
-                    }
-                } else {
-                    // For other tiers, user needs to have either the tier role or the reserve role.
-                    if (!interaction.member.roles.cache.has(requiredRoleId) && !interaction.member.roles.cache.has(reserveRoleId)) {
-                        await interaction.editReply({
-                            content: "You do not have the required role to interact with this button.",
-                            ephemeral: true,
-                        });
-                        return;
-                    }
+                // Check if the user has the role required to check in for that particular tier.
+                if (!interaction.member.roles.cache.has(requiredRoleId)) {
+                    await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
+                    return;
                 }
 
                 const embed = message.embeds[0];
@@ -428,28 +412,23 @@ module.exports = {
                     }
                 } else {
                     for (const [fieldName, field] of Object.entries(fields)) {
-                        if (interaction.message.id === messageFind.id) {
-                            if (field.value.includes(userId)) {
-                                // If the user is already in the target field, do not modify the fields or the message
-                                if (fieldName === targetField) {
-                                    await interaction.editReply({
-                                        content: `You are already registered as ${fieldName}.`,
-                                        ephemeral: true,
-                                    });
-                                    return;
-                                }
-                                field.value = field.value.replace(userId, "").trim();
-                                if (
-                                    fields[targetField].value === "None" ||
-                                    fields[targetField].value === ""
-                                ) {
-                                    fields[targetField].value = userId;
-                                } else {
-                                    fields[targetField].value =
-                                        `${fields[targetField].value}\n${userId}`.trim();
-                                }
-                                break;
+                        if (interaction.message.id === messageFind.id && field.value.includes(userId)) {
+                            // If the user is already in the target field, do not modify the fields or the message
+                            if (fieldName === targetField) {
+                                await editInteractionReply(interaction, `You are already registered as ${fieldName}.`);
+                                return;
                             }
+                            field.value = field.value.replace(userId, "").trim();
+                            if (
+                                fields[targetField].value === "None" ||
+                                fields[targetField].value === ""
+                            ) {
+                                fields[targetField].value = userId;
+                            } else {
+                                fields[targetField].value =
+                                    `${fields[targetField].value}\n${userId}`.trim();
+                            }
+                            break;
                         }
                     }
                 }
@@ -469,13 +448,10 @@ module.exports = {
                 const declinedMembersArray = fields["Declined"].value.split("\n");
                 const pendingMembersArray = fields["Pending"].value.split("\n");
 
-// Get the length of each array to find the count of members
+                // Get the length of each array to find the count of members
                 const acceptedCount = acceptedMembersArray[0] === "None" ? 0 : acceptedMembersArray.length;
                 const declinedCount = declinedMembersArray[0] === "None" ? 0 : declinedMembersArray.length;
                 const pendingCount = pendingMembersArray[0] === "None" ? 0 : pendingMembersArray.length;
-
-// Add these counts to the footer of the embed
-                // embed.footer.text = `Accepted: ${acceptedCount}, Declined: ${declinedCount}, Pending: ${pendingCount}`;
 
                 fields["Accepted"].name = `✅ Accepted (${acceptedCount})`;
                 fields["Declined"].name = `❌ Declined (${declinedCount})`;
@@ -491,19 +467,10 @@ module.exports = {
                     messageId: messageFind.id,
                 });
 
-                if (!interaction.replied && !interaction.deferred) {
-                    await interaction.editReply({
-                        content: "Attendance updated.",
-                        ephemeral: true,
-                    });
-                } else {
-                    try {
-                        await interaction.editReply({
-                            content: "Attendance updated.",
-                        });
-                    } catch (error) {
-                        console.error('An error occurred:', error);
-                    }
+                try {
+                    await editInteractionReply(interaction, "Attendance updated.");
+                } catch (error) {
+                    console.error('An error occurred:', error);
                 }
 
                 async function fetchMember(guild, memberId) {
@@ -531,9 +498,7 @@ module.exports = {
                 } catch (error) {
                     console.error('Failed to log the change:', error);
                 }
-
             });
-
         } catch (error) {
             console.error('An error occured', error);
         }

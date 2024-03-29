@@ -127,7 +127,7 @@ async function sendReminder(form) {
 			);
 		}
 	} catch (error) {
-		logChannel.send('Message does not exist or is deleted');
+		await logChannel.send('Message does not exist or is deleted');
 	}
 
 }
