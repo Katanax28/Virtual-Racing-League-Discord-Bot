@@ -234,16 +234,8 @@ module.exports = {
             const mentionMatches = message.content.match(/<@(\d+)>/g);
 
             // Create the accept and decline buttons
-            createButton(new ButtonBuilder()
-                    .setCustomId("accept")
-                    .setLabel("Accept")
-                    .setStyle(ButtonStyle.Success)
-            );
-            createButton(new ButtonBuilder()
-                    .setCustomId("decline")
-                    .setLabel("Decline")
-                    .setStyle(ButtonStyle.Danger)
-            );
+            const accept = createButton("accept", "Accept", ButtonStyle.Success);
+            const decline = createButton("decline", "Decline", ButtonStyle.Danger);
 
             const row = new ActionRowBuilder().addComponents(accept, decline);
 
