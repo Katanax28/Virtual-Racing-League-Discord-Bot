@@ -17,7 +17,10 @@ const client = new Client({
 
 client.commands = new Collection();
 
-client.user.setActivity('tier 2 drivers crash', { type: ActivityType.Watching });
+client.user.setPresence({
+	activities: [{ name: `tier 2 drivers crash`, type: ActivityType.Watching }],
+	status: 'online',
+});
 
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
