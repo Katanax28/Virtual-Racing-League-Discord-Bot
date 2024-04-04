@@ -86,7 +86,7 @@ module.exports = {
 
     async execute(interaction) {
         try {
-            await interaction.deferReply();
+            await interaction.deferReply({ephemeral: true});
             const client = interaction.client;
             let lineupChannelId;
             let requiredRoleId;
