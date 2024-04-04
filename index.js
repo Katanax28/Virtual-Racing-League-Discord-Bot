@@ -17,11 +17,6 @@ const client = new Client({
 
 client.commands = new Collection();
 
-client.user.setPresence({
-	activities: [{ name: `tier 2 drivers crash`, type: ActivityType.Watching }],
-	status: 'online',
-});
-
 const foldersPath = path.join(__dirname, "commands");
 const commandFolders = fs.readdirSync(foldersPath);
 
@@ -46,6 +41,10 @@ for (const folder of commandFolders) {
 
 client.once(Events.ClientReady, (readyClient) => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
+	client.user.setPresence({
+		activities: [{ name: `tier 2 drivers crash`, type: ActivityType.Watching }],
+		status: 'online',
+	});
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
