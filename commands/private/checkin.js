@@ -368,7 +368,7 @@ module.exports = {
                     console.error('Something went wrong, your program sucks:', error);
                 }
 
-                await interaction.deferReply();
+                await interaction.deferReply({ephemeral: true});
                 const message = await interaction.message.fetch();
 
                 // Check if the interaction is related to the specific message
