@@ -350,157 +350,159 @@ module.exports = {
 
             // When an interaction with the buttons occurs
             client.on("interactionCreate", async (interaction) => {
-                // if (!interaction.isButton()) return;
-                // try{
-                //     const guild = interaction.guild; // Get the guild from the interaction
-                //     const member = await fetchMember(guild, interaction.user.id);
-                //     if (member) {
-                //         let newDate = new Date();
-                //         let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
-                //             + "/" + newDate.getFullYear() + " @ "
-                //             + newDate.getHours() + ":"
-                //             + newDate.getMinutes() + ":" + newDate.getSeconds();
-                //         console.log(`${datetime} | ${member.user.username} has interacted with a button`);
-                //     } else {
-                //         console.log('Critical error: Member not found');
-                //     }
-                // } catch (error) {
-                //     console.error('Something went wrong, your program sucks:', error);
-                // }
-                async function reactie(){
+                try {
                     await interaction.deferReply({ephemeral: true});
+                } catch (error) {
+                    return;
                 }
-                setTimeout(reactie, 3100);
 
-                // const message = await interaction.message.fetch();
-                //
-                // // Check if the interaction is related to the specific message
-                // if (message.id !== messageFind.id) return;
-                //
-                // let currentdate = new Date();
-                // if (currentdate > logTime) {
-                //     await editInteractionReply(interaction, "The deadline for checking in has passed. If you have a good reason for missing the deadline, please message an admin.");
-                //     return;
-                // }
-                //
-                // // Check if the user has the role required to check in for that particular tier.
-                // if (!interaction.member.roles.cache.has(requiredRoleId)) {
-                //     await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
-                //     return;
-                // }
-                //
-                // const embed = message.embeds[0];
-                // const fields = {
-                //     "Accepted": embed.fields.find((field) => field.name.startsWith("✅ Accepted")),
-                //     "Declined": embed.fields.find((field) => field.name.startsWith("❌ Declined")),
-                //     "Pending": embed.fields.find((field) => field.name.startsWith("❓ Pending")),
-                // };
-                //
-                //
-                // // Find the user in the fields and move them to the appropriate field
-                // const userId = `<@${interaction.user.id}>`;
-                // const targetField =
-                //     interaction.customId === "accept" ? "Accepted" : "Declined";
-                //
-                // // If the user is not in the pending list, add them directly to the accepted or declined field
-                // if (!fields["Pending"].value.includes(userId) && !fields["Accepted"].value.includes(userId) && !fields["Declined"].value.includes(userId)) {
-                //     if (
-                //         fields[targetField].value === "None" ||
-                //         fields[targetField].value === ""
-                //     ) {
-                //         fields[targetField].value = userId;
-                //     } else {
-                //         fields[targetField].value =
-                //             `${fields[targetField].value}\n${userId}`.trim();
-                //     }
-                // } else {
-                //     for (const [fieldName, field] of Object.entries(fields)) {
-                //         if (interaction.message.id === messageFind.id && field.value.includes(userId)) {
-                //             // If the user is already in the target field, do not modify the fields or the message
-                //             if (fieldName === targetField) {
-                //                 await editInteractionReply(interaction, `You are already registered as ${fieldName}.`);
-                //                 return;
-                //             }
-                //             field.value = field.value.replace(userId, "").trim();
-                //             if (
-                //                 fields[targetField].value === "None" ||
-                //                 fields[targetField].value === ""
-                //             ) {
-                //                 fields[targetField].value = userId;
-                //             } else {
-                //                 fields[targetField].value =
-                //                     `${fields[targetField].value}\n${userId}`.trim();
-                //             }
-                //             break;
-                //         }
-                //     }
-                // }
-                //
-                // // Check if any field is empty and set it to 'None'
-                // for (const field of Object.values(fields)) {
-                //     if (field.value.trim() === "") {
-                //         field.value = "None";
-                //     } else {
-                //         // Get rid of double newlines
-                //         field.value = field.value.replace(/\n\n/g, "\n");
-                //     }
-                // }
-                //
-                // // Split the value of each field by newline to get an array of members
-                // const acceptedMembersArray = fields["Accepted"].value.split("\n");
-                // const declinedMembersArray = fields["Declined"].value.split("\n");
-                // const pendingMembersArray = fields["Pending"].value.split("\n");
-                //
-                // // Get the length of each array to find the count of members
-                // const acceptedCount = acceptedMembersArray[0] === "None" ? 0 : acceptedMembersArray.length;
-                // const declinedCount = declinedMembersArray[0] === "None" ? 0 : declinedMembersArray.length;
-                // const pendingCount = pendingMembersArray[0] === "None" ? 0 : pendingMembersArray.length;
-                //
-                // fields["Accepted"].name = `✅ Accepted (${acceptedCount})`;
-                // fields["Declined"].name = `❌ Declined (${declinedCount})`;
-                // fields["Pending"].name = `❓ Pending (${pendingCount})`;
-                //
-                // // Edit the message with the new content
-                // await message.edit({embeds: [embed]});
-                //
-                // reminderWorker.postMessage({
-                //     type: "update",
-                //     pendingField: fields["Pending"],
-                //     declinedField: fields["Declined"],
-                //     messageId: messageFind.id,
-                // });
-                //
-                // try {
-                //     await editInteractionReply(interaction, "Attendance updated.");
-                // } catch (error) {
-                //     console.error('An error occurred:', error);
-                // }
-                //
-                // async function fetchMember(guild, memberId) {
-                //     try {
-                //         return await guild.members.fetch(memberId);
-                //     } catch (error) {
-                //         console.error('Failed to fetch member:', error);
-                //         return null;
-                //     }
-                // }
-                //
-                // try {
-                //     const guild = interaction.guild; // Get the guild from the interaction
-                //     const member = await fetchMember(guild, interaction.user.id);
-                //     if (member) {
-				// 		let newDate = new Date();
-				// 		let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
-				// 			+ "/" + newDate.getFullYear() + " @ "
-				// 			+ newDate.getHours() + ":"
-				// 			+ newDate.getMinutes() + ":" + newDate.getSeconds();
-                //         console.log(`${datetime} | ${member.user.username} has moved to ${targetField} for ${title}: ${countryName} checkin`);
-                //     } else {
-                //         console.log('Member not found');
-                //     }
-                // } catch (error) {
-                //     console.error('Failed to log the change:', error);
-                // }
+                if (!interaction.isButton()) return;
+                try{
+                    const guild = interaction.guild; // Get the guild from the interaction
+                    const member = await fetchMember(guild, interaction.user.id);
+                    if (member) {
+                        let newDate = new Date();
+                        let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
+                            + "/" + newDate.getFullYear() + " @ "
+                            + newDate.getHours() + ":"
+                            + newDate.getMinutes() + ":" + newDate.getSeconds();
+                        console.log(`${datetime} | ${member.user.username} has interacted with a button`);
+                    } else {
+                        console.log('Critical error: Member not found');
+                    }
+                } catch (error) {
+                    console.error('Something went wrong, your program sucks:', error);
+                }
+
+                const message = await interaction.message.fetch();
+
+                // Check if the interaction is related to the specific message
+                if (message.id !== messageFind.id) return;
+
+                let currentdate = new Date();
+                if (currentdate > logTime) {
+                    await editInteractionReply(interaction, "The deadline for checking in has passed. If you have a good reason for missing the deadline, please message an admin.");
+                    return;
+                }
+
+                // Check if the user has the role required to check in for that particular tier.
+                if (!interaction.member.roles.cache.has(requiredRoleId)) {
+                    await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
+                    return;
+                }
+
+                const embed = message.embeds[0];
+                const fields = {
+                    "Accepted": embed.fields.find((field) => field.name.startsWith("✅ Accepted")),
+                    "Declined": embed.fields.find((field) => field.name.startsWith("❌ Declined")),
+                    "Pending": embed.fields.find((field) => field.name.startsWith("❓ Pending")),
+                };
+
+
+                // Find the user in the fields and move them to the appropriate field
+                const userId = `<@${interaction.user.id}>`;
+                const targetField =
+                    interaction.customId === "accept" ? "Accepted" : "Declined";
+
+                // If the user is not in the pending list, add them directly to the accepted or declined field
+                if (!fields["Pending"].value.includes(userId) && !fields["Accepted"].value.includes(userId) && !fields["Declined"].value.includes(userId)) {
+                    if (
+                        fields[targetField].value === "None" ||
+                        fields[targetField].value === ""
+                    ) {
+                        fields[targetField].value = userId;
+                    } else {
+                        fields[targetField].value =
+                            `${fields[targetField].value}\n${userId}`.trim();
+                    }
+                } else {
+                    for (const [fieldName, field] of Object.entries(fields)) {
+                        if (interaction.message.id === messageFind.id && field.value.includes(userId)) {
+                            // If the user is already in the target field, do not modify the fields or the message
+                            if (fieldName === targetField) {
+                                await editInteractionReply(interaction, `You are already registered as ${fieldName}.`);
+                                return;
+                            }
+                            field.value = field.value.replace(userId, "").trim();
+                            if (
+                                fields[targetField].value === "None" ||
+                                fields[targetField].value === ""
+                            ) {
+                                fields[targetField].value = userId;
+                            } else {
+                                fields[targetField].value =
+                                    `${fields[targetField].value}\n${userId}`.trim();
+                            }
+                            break;
+                        }
+                    }
+                }
+
+                // Check if any field is empty and set it to 'None'
+                for (const field of Object.values(fields)) {
+                    if (field.value.trim() === "") {
+                        field.value = "None";
+                    } else {
+                        // Get rid of double newlines
+                        field.value = field.value.replace(/\n\n/g, "\n");
+                    }
+                }
+
+                // Split the value of each field by newline to get an array of members
+                const acceptedMembersArray = fields["Accepted"].value.split("\n");
+                const declinedMembersArray = fields["Declined"].value.split("\n");
+                const pendingMembersArray = fields["Pending"].value.split("\n");
+
+                // Get the length of each array to find the count of members
+                const acceptedCount = acceptedMembersArray[0] === "None" ? 0 : acceptedMembersArray.length;
+                const declinedCount = declinedMembersArray[0] === "None" ? 0 : declinedMembersArray.length;
+                const pendingCount = pendingMembersArray[0] === "None" ? 0 : pendingMembersArray.length;
+
+                fields["Accepted"].name = `✅ Accepted (${acceptedCount})`;
+                fields["Declined"].name = `❌ Declined (${declinedCount})`;
+                fields["Pending"].name = `❓ Pending (${pendingCount})`;
+
+                // Edit the message with the new content
+                await message.edit({embeds: [embed]});
+
+                reminderWorker.postMessage({
+                    type: "update",
+                    pendingField: fields["Pending"],
+                    declinedField: fields["Declined"],
+                    messageId: messageFind.id,
+                });
+
+                try {
+                    await editInteractionReply(interaction, "Attendance updated.");
+                } catch (error) {
+                    console.error('An error occurred:', error);
+                }
+
+                async function fetchMember(guild, memberId) {
+                    try {
+                        return await guild.members.fetch(memberId);
+                    } catch (error) {
+                        console.error('Failed to fetch member:', error);
+                        return null;
+                    }
+                }
+
+                try {
+                    const guild = interaction.guild; // Get the guild from the interaction
+                    const member = await fetchMember(guild, interaction.user.id);
+                    if (member) {
+						let newDate = new Date();
+						let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
+							+ "/" + newDate.getFullYear() + " @ "
+							+ newDate.getHours() + ":"
+							+ newDate.getMinutes() + ":" + newDate.getSeconds();
+                        console.log(`${datetime} | ${member.user.username} has moved to ${targetField} for ${title}: ${countryName} checkin`);
+                    } else {
+                        console.log('Member not found');
+                    }
+                } catch (error) {
+                    console.error('Failed to log the change:', error);
+                }
             });
         } catch (error) {
             console.error('An error occured', error);
