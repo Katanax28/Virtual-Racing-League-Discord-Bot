@@ -474,14 +474,14 @@ module.exports = {
                 //     console.error('An error occurred:', error);
                 // }
                 //
-                // async function fetchMember(guild, memberId) {
-                //     try {
-                //         return await guild.members.fetch(memberId);
-                //     } catch (error) {
-                //         console.error('Failed to fetch member:', error);
-                //         return null;
-                //     }
-                // }
+                async function fetchMember(guild, memberId) {
+                    try {
+                        return await guild.members.fetch(memberId);
+                    } catch (error) {
+                        console.error('Failed to fetch member:', error);
+                        return null;
+                    }
+                }
                 //
                 // try {
                 //     const guild = interaction.guild; // Get the guild from the interaction
