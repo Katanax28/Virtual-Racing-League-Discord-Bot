@@ -350,25 +350,27 @@ module.exports = {
 
             // When an interaction with the buttons occurs
             client.on("interactionCreate", async (interaction) => {
-                if (!interaction.isButton()) return;
-                try{
-                    const guild = interaction.guild; // Get the guild from the interaction
-                    const member = await fetchMember(guild, interaction.user.id);
-                    if (member) {
-                        let newDate = new Date();
-                        let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
-                            + "/" + newDate.getFullYear() + " @ "
-                            + newDate.getHours() + ":"
-                            + newDate.getMinutes() + ":" + newDate.getSeconds();
-                        console.log(`${datetime} | ${member.user.username} has interacted with a button`);
-                    } else {
-                        console.log('Critical error: Member not found');
-                    }
-                } catch (error) {
-                    console.error('Something went wrong, your program sucks:', error);
+                // if (!interaction.isButton()) return;
+                // try{
+                //     const guild = interaction.guild; // Get the guild from the interaction
+                //     const member = await fetchMember(guild, interaction.user.id);
+                //     if (member) {
+                //         let newDate = new Date();
+                //         let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
+                //             + "/" + newDate.getFullYear() + " @ "
+                //             + newDate.getHours() + ":"
+                //             + newDate.getMinutes() + ":" + newDate.getSeconds();
+                //         console.log(`${datetime} | ${member.user.username} has interacted with a button`);
+                //     } else {
+                //         console.log('Critical error: Member not found');
+                //     }
+                // } catch (error) {
+                //     console.error('Something went wrong, your program sucks:', error);
+                // }
+                async function reactie(){
+                    await interaction.deferReply({ephemeral: true});
                 }
-
-                setTimeout(await interaction.deferReply({ephemeral: true}), 3100);
+                setTimeout(reactie, 3100);
 
                 // const message = await interaction.message.fetch();
                 //
@@ -474,14 +476,14 @@ module.exports = {
                 //     console.error('An error occurred:', error);
                 // }
                 //
-                async function fetchMember(guild, memberId) {
-                    try {
-                        return await guild.members.fetch(memberId);
-                    } catch (error) {
-                        console.error('Failed to fetch member:', error);
-                        return null;
-                    }
-                }
+                // async function fetchMember(guild, memberId) {
+                //     try {
+                //         return await guild.members.fetch(memberId);
+                //     } catch (error) {
+                //         console.error('Failed to fetch member:', error);
+                //         return null;
+                //     }
+                // }
                 //
                 // try {
                 //     const guild = interaction.guild; // Get the guild from the interaction
