@@ -2,7 +2,7 @@ const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, Permi
 const {Worker} = require("worker_threads");
 require("dotenv").config();
 modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
-checkinChannelId = process.env.DISCORD_CHECKIN_CHANNEL_ID;
+checkinChannelId = process.env.DISCORD_TEST_CHANNEL_ID;
 
 // function list
 function createButton(customId, label, style) {
@@ -368,6 +368,7 @@ module.exports = {
                     console.error('Something went wrong, your program sucks:', error);
                 }
 
+                await wait(3100);
                 await interaction.deferReply({ephemeral: true});
                 const message = await interaction.message.fetch();
 
