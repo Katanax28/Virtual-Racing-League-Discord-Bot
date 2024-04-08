@@ -350,14 +350,15 @@ module.exports = {
 
             // When an interaction with the buttons occurs
             client.on("interactionCreate", async (interaction) => {
+                if (!interaction.isButton()) return;
                 try {
                     await interaction.deferReply({ephemeral: true});
                 } catch (error) {
-                    console.error(error);
+                    console.error("something goes wrong");
                     return;
                 }
 
-                if (!interaction.isButton()) return;
+
                 try{
                     const guild = interaction.guild; // Get the guild from the interaction
                     const member = await fetchMember(guild, interaction.user.id);
