@@ -22,8 +22,8 @@ async function editInteractionReply(interaction, content) {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("t1checkin")
-        .setDescription("Creates the checkin for tier 1")
+        .setName("t2checkin")
+        .setDescription("Creates the checkin for tier 2")
         .addStringOption((option) =>
             option
                 .setName("country")
@@ -78,37 +78,37 @@ module.exports = {
         try {
             await interaction.deferReply({ephemeral: true});
             const client = interaction.client;
-            const lineupChannelId = "780986553689571358";
-            const requiredRoleId = "786932803660283925";
+            const lineupChannelId = "789226527186223105";
+            const requiredRoleId = "789474486277505045";
 
             // Create a mapping of the country values to their corresponding names
             const countryChoices = {
-                abu_dhabi: {name: "Abu Dhabi", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290312137814086/are.png",},
-                australia: {name: "Australia", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290324733313094/aus.png",},
-                austria: {name: "Austria", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290333730078911/aut.png",},
-                azerbaijan: {name: "Azerbaijan", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290343670583306/aze.png",},
-                bahrain: {name: "Bahrain", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290370954539008/bhr.png",},
-                belgium: {name: "Belgium", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290358505840730/bel.png",},
-                brazil: {name: "Brazil", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290378726584441/bra.png",},
-                canada: {name: "Canada", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290386565734470/can.png",},
-                china: {name: "China", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290393075306626/chn.png",},
-                france: {name: "France", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290410833973268/fra.png",},
-                britain: {name: "Great Britain", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290416869585036/gbr.png",},
-                hungary: {name: "Hungary", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290422930346076/hun.png",},
-                imola: {name: "Imola", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png",},
-                monza: {name: "Italy", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png",},
-                japan: {name: "Japan", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290439443329054/jpn.png",},
-                vegas: {name: "Las Vegas", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
-                mexico: {name: "Mexico", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290457852133376/mex.png",},
-                miami: {name: "Miami", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
-                monaco: { name: 'Monaco', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png' },
-                netherlands: {name: "Netherlands", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290465716453446/nld.png",},
-                portugal: {name: "Portugal", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290473819832340/prt.png",},
-                qatar: {name: "Qatar", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290499174416474/qat.png",},
-                saudi: {name: "Saudi Arabia", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290510423535677/sau.png",},
-                singapore: {name: "Singapore", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290516501082173/sgp.png",},
-                spain: {name: "Spain", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290401820409976/esp.png",},
-                cota: {name: "Texas", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
+                abu_dhabi: {name: "Abu Dhabi", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290312137814086/are.png",},
+                australia: {name: "Australia", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290324733313094/aus.png",},
+                austria: {name: "Austria", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290333730078911/aut.png",},
+                azerbaijan: {name: "Azerbaijan", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290343670583306/aze.png",},
+                bahrain: {name: "Bahrain", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290370954539008/bhr.png",},
+                belgium: {name: "Belgium", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290358505840730/bel.png",},
+                brazil: {name: "Brazil", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290378726584441/bra.png",},
+                canada: {name: "Canada", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290386565734470/can.png",},
+                china: {name: "China", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290393075306626/chn.png",},
+                france: {name: "France", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290410833973268/fra.png",},
+                britain: {name: "Great Britain", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290416869585036/gbr.png",},
+                hungary: {name: "Hungary", url: "https://media.discordapp.net/attachments/1198290212678271096/1198290422930346076/hun.png",},
+                imola: {name: "Imola", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png",},
+                monza: {name: "Italy", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png",},
+                japan: {name: "Japan", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290439443329054/jpn.png",},
+                vegas: {name: "Las Vegas", url: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
+                mexico: {name: "Mexico", url: "https://media.discordapp.net/attachments/1198290212678271096/1198290457852133376/mex.png",},
+                miami: {name: "Miami", url: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
+                monaco: { name: 'Monaco', url: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png' },
+                netherlands: {name: "Netherlands", url: "https://media.discordapp.net/attachments/1198290212678271096/1198290465716453446/nld.png",},
+                portugal: {name: "Portugal", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290473819832340/prt.png",},
+                qatar: {name: "Qatar", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290499174416474/qat.png",},
+                saudi: {name: "Saudi Arabia", url: "https://media.discordapp.net/attachments/1198290212678271096/1198290510423535677/sau.png",},
+                singapore: {name: "Singapore", url: "https://media.discordapp.net/attachments/1198290212678271096/1198290516501082173/sgp.png",},
+                spain: {name: "Spain", url: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290401820409976/esp.png",},
+                cota: {name: "Texas", url: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
             };
 
             // Extract the country and title from the command
@@ -146,24 +146,24 @@ module.exports = {
 
             // Calculate the date of the next Sunday at 6pm CET
             const now = new Date();
-            const nextSunday = new Date(
+            const nextSaturday = new Date(
                 now.getFullYear(),
                 now.getMonth(),
-                now.getDate() + (7 - now.getDay() || 7)
+                now.getDate() + (6 - now.getDay() + 7) % 7
             );
-            nextSunday.setHours(sessionTime, 0, 0, 0); // Set the time to the prompt time  (UTC)
+            nextSaturday.setHours(sessionTime, 0, 0, 0); // Set the time to the prompt time  (UTC)
 
-            let unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
-            let reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-            let logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
-            console.log("Tier 1 activated, time:" + nextSunday.getTime());
+            let unixTimestamp = Math.floor(nextSaturday.getTime() / 1000);
+            let reminderTime = new Date(nextSaturday.getTime() - 48 * 60 * 60 * 1000);
+            let logTime = new Date(nextSaturday.getTime() - 24 * 60 * 60 * 1000);
+            console.log("Tier 2 activated, time:" + nextSaturday.getTime())
 
             const embed = new EmbedBuilder()
-                .setTitle(`Tier 1 Attendance`)
+                .setTitle(`Tier 2 Attendance`)
                 .setDescription(
                     `**${title}: ${countryName}**\n<t:${unixTimestamp}:F>\nThis is <t:${unixTimestamp}:R>`
                 )
-                .setColor("#004BA0")
+                .setColor("#2ECC71")
                 .setThumbnail(countryFlagUrl)
                 .addFields(
                     {
@@ -224,7 +224,7 @@ module.exports = {
             });
 
             // Confirmation of command
-            await editInteractionReply(interaction, `Tier 1 checkin complete.`)
+            await editInteractionReply(interaction, `Tier 2 checkin complete.`)
 
             // When an interaction with the buttons occurs
             client.on("interactionCreate", async (interaction) => {
@@ -266,7 +266,7 @@ module.exports = {
                 // Check if the user has the role required to check in for that particular tier.
                 if (!interaction.member.roles.cache.has(requiredRoleId)) {
                     await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
-                    console.log("Missing role, interaction ignored.");
+                    console.log("Missing role, interaction ignored.");z
                     return;
                 }
 
@@ -370,7 +370,7 @@ module.exports = {
                             + "/" + newDate.getFullYear() + " @ "
                             + newDate.getHours() + ":"
                             + newDate.getMinutes() + ":" + newDate.getSeconds();
-                        console.log(`${datetime} | ${member.user.username} has moved to ${targetField} for Tier 1: ${countryName} checkin`);
+                        console.log(`${datetime} | ${member.user.username} has moved to ${targetField} for Tier 2: ${countryName} checkin`);
                     } else {
                         console.log('Member not found');
                     }
