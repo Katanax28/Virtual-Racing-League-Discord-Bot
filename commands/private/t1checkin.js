@@ -78,10 +78,38 @@ module.exports = {
         try {
             await interaction.deferReply({ephemeral: true});
             const client = interaction.client;
-            lineupChannelId = "780986553689571358";
-            requiredRoleId = "786932803660283925";
+            const lineupChannelId = "780986553689571358";
+            const requiredRoleId = "786932803660283925";
 
-            const countryChoices = fs.readFileSync('country-choices.json', 'utf8');
+            // Create a mapping of the country values to their corresponding names
+            const countryChoices = {
+                abu_dhabi: {name: "Abu Dhabi", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290312137814086/are.png",},
+                australia: {name: "Australia", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290324733313094/aus.png",},
+                austria: {name: "Austria", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290333730078911/aut.png",},
+                azerbaijan: {name: "Azerbaijan", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290343670583306/aze.png",},
+                bahrain: {name: "Bahrain", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290370954539008/bhr.png",},
+                belgium: {name: "Belgium", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290358505840730/bel.png",},
+                brazil: {name: "Brazil", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290378726584441/bra.png",},
+                canada: {name: "Canada", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290386565734470/can.png",},
+                china: {name: "China", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290393075306626/chn.png",},
+                france: {name: "France", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290410833973268/fra.png",},
+                britain: {name: "Great Britain", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290416869585036/gbr.png",},
+                hungary: {name: "Hungary", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290422930346076/hun.png",},
+                imola: {name: "Imola", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png",},
+                monza: {name: "Italy", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png",},
+                japan: {name: "Japan", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290439443329054/jpn.png",},
+                vegas: {name: "Las Vegas", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
+                mexico: {name: "Mexico", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290457852133376/mex.png",},
+                miami: {name: "Miami", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
+                monaco: { name: 'Monaco', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png' },
+                netherlands: {name: "Netherlands", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290465716453446/nld.png",},
+                portugal: {name: "Portugal", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290473819832340/prt.png",},
+                qatar: {name: "Qatar", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290499174416474/qat.png",},
+                saudi: {name: "Saudi Arabia", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290510423535677/sau.png",},
+                singapore: {name: "Singapore", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290516501082173/sgp.png",},
+                spain: {name: "Spain", link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290401820409976/esp.png",},
+                cota: {name: "Texas", link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",},
+            };
 
             // Extract the country and title from the command
             const countryOption = interaction.options.get("country");
@@ -170,7 +198,6 @@ module.exports = {
                 .catch(console.error);
 
             const modChannel = await client.channels.fetch(modChannelId);
-
             const embedFind = messageFind.embeds[0];
             const pendingField = embedFind.fields.find(
                 (field) => field.name === "❓ Pending"
@@ -356,5 +383,3 @@ module.exports = {
         }
     }
 }
-
-
