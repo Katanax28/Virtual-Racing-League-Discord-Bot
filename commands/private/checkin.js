@@ -386,7 +386,6 @@ module.exports = {
                     console.log("message.id is not messageFind.id")
                     console.log("changing messageFind.id to message.id")
                     messageFind = message;
-                    return;
                 }
 
 
