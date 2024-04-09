@@ -22,7 +22,7 @@ async function editInteractionReply(interaction, content) {
 
 module.exports = {
     data: new SlashCommandBuilder()
-        .setName("checkin")
+        .setName("t1checkin")
         .setDescription("Creates the checkin for tier 1")
         .addStringOption((option) =>
             option
