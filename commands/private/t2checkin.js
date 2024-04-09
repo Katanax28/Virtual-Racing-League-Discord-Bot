@@ -266,7 +266,7 @@ module.exports = {
                 // Check if the user has the role required to check in for that particular tier.
                 if (!interaction.member.roles.cache.has(requiredRoleId)) {
                     await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
-                    console.log("Missing role, interaction ignored.");z
+                    console.log("Missing role, interaction ignored.");
                     return;
                 }
 
