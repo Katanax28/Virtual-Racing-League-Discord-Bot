@@ -377,19 +377,26 @@ module.exports = {
                 }
 
                 const message = await interaction.message.fetch();
+                console.log("message fetched")
 
                 // Check if the interaction is related to the specific message
-                if (message.id !== messageFind.id) return;
+                if (message.id !== messageFind.id){
+                    console.log("message.id is not messageFind,.id")
+                    return;
+                }
+
 
                 let currentdate = new Date();
                 if (currentdate > logTime) {
                     await editInteractionReply(interaction, "The deadline for checking in has passed. If you have a good reason for missing the deadline, please message an admin.");
+                    console.log("logtime passed")
                     return;
                 }
 
                 // Check if the user has the role required to check in for that particular tier.
                 if (!interaction.member.roles.cache.has(requiredRoleId)) {
                     await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
+                    console.log("wrong role")
                     return;
                 }
 
@@ -399,6 +406,7 @@ module.exports = {
                     "Declined": embed.fields.find((field) => field.name.startsWith("❌ Declined")),
                     "Pending": embed.fields.find((field) => field.name.startsWith("❓ Pending")),
                 };
+                console.log("fields collected")
 
 
                 // Find the user in the fields and move them to the appropriate field
@@ -438,6 +446,7 @@ module.exports = {
                             break;
                         }
                     }
+                    console.log("interaction processed")
                 }
 
                 // Check if any field is empty and set it to 'None'
