@@ -253,6 +253,8 @@ module.exports = {
                 // Check if the interaction is related to the specific message
                 if (message.id !== messageFind.id){
                     console.log("message.id is not messageFind.id");
+                    console.log("message.id: " + message.id);
+                    console.log("messageFind.id: " + messageFind.id);
                     return;
                 }
 
