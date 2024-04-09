@@ -16,7 +16,7 @@ async function editInteractionReply(interaction, content) {
     await interaction.editReply({
         content: content,
         ephemeral: true,
-    });
+    }).catch(console.error);
 }
 
 module.exports = {
@@ -86,19 +86,22 @@ module.exports = {
 
     async execute(interaction) {
         try {
-            await interaction.deferReply({ephemeral: true});
+            await interaction.deferReply({ephemeral: true}).catch(console.error);
             const client = interaction.client;
             let lineupChannelId;
             let requiredRoleId;
             let reserveRoleId;
+            let colorCode;
 
             const tier = interaction.options.get("tier");
             if (tier.value === 1) {
                 lineupChannelId = "780986553689571358";
                 requiredRoleId = "786932803660283925";
+                colorCode = "#004BA0";
             } else if (tier.value === 2) {
                 lineupChannelId = "789226527186223105";
                 requiredRoleId = "789474486277505045";
+                colorCode = "#2ECC71";
             }
             // else if(tier.value === 3) {
             // 	lineupChannelId = "961004601757274133"
@@ -276,15 +279,12 @@ module.exports = {
                 console.log("Tier 2 activated, time:" + nextSaturday.getTime())
             }
 
-            // const testReminderTime = new Date(now.getTime() + 60 * 1000);
-            // const testLogTime = new Date(now.getTime() + 120 * 1000);
-
             const embed = new EmbedBuilder()
                 .setTitle(`Tier ${tier.value} Attendance`)
                 .setDescription(
                     `**${title}: ${countryName}**\n<t:${unixTimestamp}:F>\nThis is <t:${unixTimestamp}:R>`
                 )
-                .setColor("#3835A9")
+                .setColor(colorCode)
                 .setThumbnail(countryFlagLink)
                 .addFields(
                     {
@@ -306,7 +306,7 @@ module.exports = {
                 .setFooter({text: `No drivers have accepted yet.`})
             let messageFind = undefined;
             // Creating the check-in
-            const checkinChannel = await client.channels.fetch(checkinChannelId);
+            const checkinChannel = await client.channels.fetch(checkinChannelId).catch(console.error);
             await checkinChannel
                 .send({
                     content: `<@&${requiredRoleId}>`,
@@ -318,7 +318,7 @@ module.exports = {
                 })
                 .catch(console.error);
 
-            const modChannel = await client.channels.fetch(modChannelId);
+            const modChannel = await client.channels.fetch(modChannelId).catch(console.error);
 
             const embedFind = messageFind.embeds[0];
             const pendingField = embedFind.fields.find(
@@ -354,14 +354,14 @@ module.exports = {
                 await interaction.deferReply({ephemeral: true}).catch(error => {});
 
                 // Check if the interaction is related to the specific message
-                const message = await interaction.message.fetch();
+                const message = await interaction.message.fetch().catch(console.error);
                 if (message.id !== messageFind.id){
                     return;
                 }
 
                 try{
                     const guild = interaction.guild; // Get the guild from the interaction
-                    const member = await fetchMember(guild, interaction.user.id);
+                    const member = await fetchMember(guild, interaction.user.id).catch(console.error);
                     if (member) {
                         let newDate = new Date();
                         let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
@@ -399,19 +399,14 @@ module.exports = {
 
                 // Find the user in the fields and move them to the appropriate field
                 const userId = `<@${interaction.user.id}>`;
-                const targetField =
-                    interaction.customId === "accept" ? "Accepted" : "Declined";
+                const targetField = interaction.customId === "accept" ? "Accepted" : "Declined";
 
                 // If the user is not in the pending list, add them directly to the accepted or declined field
                 if (!fields["Pending"].value.includes(userId) && !fields["Accepted"].value.includes(userId) && !fields["Declined"].value.includes(userId)) {
-                    if (
-                        fields[targetField].value === "None" ||
-                        fields[targetField].value === ""
-                    ) {
+                    if (fields[targetField].value === "None" || fields[targetField].value === "") {
                         fields[targetField].value = userId;
                     } else {
-                        fields[targetField].value =
-                            `${fields[targetField].value}\n${userId}`.trim();
+                        fields[targetField].value = `${fields[targetField].value}\n${userId}`.trim();
                     }
                 } else {
                     for (const [fieldName, field] of Object.entries(fields)) {
@@ -419,17 +414,14 @@ module.exports = {
                             // If the user is already in the target field, do not modify the fields or the message
                             if (fieldName === targetField) {
                                 await editInteractionReply(interaction, `You are already registered as ${fieldName}.`);
+                                console.log("User already registered as " + fieldName + ", interaction ignored.")
                                 return;
                             }
                             field.value = field.value.replace(userId, "").trim();
-                            if (
-                                fields[targetField].value === "None" ||
-                                fields[targetField].value === ""
-                            ) {
+                            if (fields[targetField].value === "None" || fields[targetField].value === "") {
                                 fields[targetField].value = userId;
                             } else {
-                                fields[targetField].value =
-                                    `${fields[targetField].value}\n${userId}`.trim();
+                                fields[targetField].value = `${fields[targetField].value}\n${userId}`.trim();
                             }
                             break;
                         }
@@ -461,7 +453,7 @@ module.exports = {
                 fields["Pending"].name = `❓ Pending (${pendingCount})`;
 
                 // Edit the message with the new content
-                await message.edit({embeds: [embed]});
+                await message.edit({embeds: [embed]}).catch(console.error);
 
                 reminderWorker.postMessage({
                     type: "update",
@@ -470,31 +462,22 @@ module.exports = {
                     messageId: messageFind.id,
                 });
 
-                try {
-                    await editInteractionReply(interaction, "Attendance updated.");
-                } catch (error) {
-                    console.error('An error occurred:', error);
-                }
+                await editInteractionReply(interaction, "Attendance updated.").catch(console.error);
 
                 async function fetchMember(guild, memberId) {
-                    try {
-                        return await guild.members.fetch(memberId);
-                    } catch (error) {
-                        console.error('Failed to fetch member:', error);
-                        return null;
-                    }
+                    return await guild.members.fetch(memberId).catch(console.error);
                 }
 
                 try {
                     const guild = interaction.guild; // Get the guild from the interaction
-                    const member = await fetchMember(guild, interaction.user.id);
+                    const member = await fetchMember(guild, interaction.user.id).catch(console.error);
                     if (member) {
 						let newDate = new Date();
 						let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
 							+ "/" + newDate.getFullYear() + " @ "
 							+ newDate.getHours() + ":"
 							+ newDate.getMinutes() + ":" + newDate.getSeconds();
-                        console.log(`${datetime} | ${member.user.username} has moved to ${targetField} for ${title}: ${countryName} checkin`);
+                        console.log(`${datetime} | ${member.user.username} has moved to ${targetField} for Tier ${tier.value}: ${countryName} checkin`);
                     } else {
                         console.log('Member not found');
                     }
