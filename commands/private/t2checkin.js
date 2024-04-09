@@ -229,7 +229,7 @@ module.exports = {
             // When an interaction with the buttons occurs
             client.on("interactionCreate", async (interaction) => {
                 if (!interaction.isButton()) return;
-                await interaction.deferReply({ephemeral: true}).catch(console.error);
+                await interaction.deferReply({ephemeral: true}).catch();
 
                 try{
                     const guild = interaction.guild; // Get the guild from the interaction
@@ -253,6 +253,8 @@ module.exports = {
                 // Check if the interaction is related to the specific message
                 if (message.id !== messageFind.id){
                     console.log("message.id is not messageFind.id");
+                    console.log("message.id: " + message.id);
+                    console.log("messageFind.id: " + messageFind.id);
                     return;
                 }
 
