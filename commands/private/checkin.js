@@ -378,10 +378,12 @@ module.exports = {
 
                 const message = await interaction.message.fetch();
                 console.log("message fetched")
+                console.log(`messageFind.id: ${messageFind.id}`);
+                console.log(`message.id: ${message.id}`);
 
                 // Check if the interaction is related to the specific message
                 if (message.id !== messageFind.id){
-                    console.log("message.id is not messageFind,.id")
+                    console.log("message.id is not messageFind.id")
                     return;
                 }
 
