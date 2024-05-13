@@ -303,7 +303,6 @@ module.exports = {
                         inline: true,
                     }
                 )
-                .setFooter({text: `No drivers have accepted yet.`})
             let messageFind = undefined;
             // Creating the check-in
             const checkinChannel = await client.channels.fetch(checkinChannelId).catch(console.error);
