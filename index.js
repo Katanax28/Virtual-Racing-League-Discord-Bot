@@ -42,7 +42,7 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, (readyClient) => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 	client.user.setPresence({
-		activities: [{ name: `tier 2 drivers crash`, type: ActivityType.Watching }],
+		activities: [{ name: `reserve drivers crash`, type: ActivityType.Watching }],
 		status: 'online',
 	});
 });
