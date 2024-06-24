@@ -1,8 +1,10 @@
 const fs = require("fs");
 require("dotenv").config();
 const { parentPort, workerData } = require("worker_threads");
-const { Client, Intents, GatewayIntentBits } = require("discord.js");
+const { Client, Intents, GatewayIntentBits, Discord } = require("discord.js");
 const token = process.env.DISCORD_TOKEN;
+
+const client = new Discord.Client();
 
 // Initialize the global variable with initial data that is presisted to disk
 async function saveScheduleData(scheduleData) {
@@ -26,6 +28,7 @@ parentPort.on("message", (message) => {
 		checkinChannelId,
 		messageId,
 		modChannelId,
+		buttonInteractionHandler,
 	} = message;
 
 	globalMessageId = messageId;
@@ -101,6 +104,11 @@ function pendingSchedule() {
 		logTimePast.forEach((form) => {
 			sendLog(form);
 			scheduleData = scheduleData.filter((item) => item.id !== form.id);
+			try {
+				client.removeListener("interactionCreate", buttonInteractionHandler);
+			}catch (error){
+				console.error("Error removing listener");
+			}
 		});
 
 		if (scheduleData.length > 0) {

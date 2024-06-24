@@ -70,7 +70,7 @@ module.exports = {
                 .setRequired(true)
                 .addChoices(
                     {name: 'Tier 1', value: 1},
-                    {name: 'Tier 2', value: 2}
+                    // {name: 'Tier 2', value: 2}
                 )
         )
         .addNumberOption((option) =>
@@ -327,28 +327,8 @@ module.exports = {
                 (field) => field.name === "❌ Declined"
             );
 
-            const reminderWorker = new Worker("./workers/reminderWorker.js");
-            reminderWorker.postMessage({
-                type: "init",
-                reminderTime: reminderTime.getTime(),
-                logTime: logTime.getTime(),
-                title: title,
-                countryName: countryName,
-                pendingField: pendingField,
-                declinedField: declinedField,
-                checkinChannelId: checkinChannel.id,
-                messageId: messageFind.id,
-                modChannelId: modChannel.id,
-            });
-            reminderWorker.on("error", (err) => {
-                console.error("An error occurred in the worker:", err);
-            });
-
-            // Confirmation of command
-            await editInteractionReply(interaction, `Tier 1 checkin complete.`)
-
             // When an interaction with the buttons occurs
-            client.on("interactionCreate", async (interaction) => {
+            const buttonInteractionHandler = async (interaction) => {
                 if (!interaction.isButton()) return;
                 await interaction.deferReply({ephemeral: true}).catch(error => {});
 
@@ -383,7 +363,7 @@ module.exports = {
                 }
 
                 // Check if the user has the role required to check in for that particular tier.
-                if (!interaction.member.roles.cache.has(requiredRoleId)) {
+                if (!interaction.member.roles.cache.has(requiredRoleId) && !interaction.member.roles.cache.has(reserveRoleId)) {
                     await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
                     console.log("Missing role, interaction ignored.");
                     return;
@@ -483,7 +463,30 @@ module.exports = {
                 } catch (error) {
                     console.error('Failed to log the change:', error);
                 }
+            }
+
+            const reminderWorker = new Worker("./workers/reminderWorker.js");
+            reminderWorker.postMessage({
+                type: "init",
+                reminderTime: reminderTime.getTime(),
+                logTime: logTime.getTime(),
+                title: title,
+                countryName: countryName,
+                pendingField: pendingField,
+                declinedField: declinedField,
+                checkinChannelId: checkinChannel.id,
+                messageId: messageFind.id,
+                modChannelId: modChannel.id,
+                buttonInteractionHandler: buttonInteractionHandler.toString(),
             });
+            reminderWorker.on("error", (err) => {
+                console.error("An error occurred in the worker:", err);
+            });
+
+            // Confirmation of command
+            await editInteractionReply(interaction, `Tier 1 checkin complete.`)
+
+            client.on("interactionCreate", buttonInteractionHandler);
         } catch (error) {
             console.error('An error occured', error);
         }
