@@ -3,8 +3,9 @@ require('./functions/twitchNotifier.js');
 require("dotenv").config();
 const fs = require("node:fs");
 const path = require("node:path");
-const { Client, Collection, Events, GatewayIntentBits, ActivityType } = require("discord.js");
+const { Client, Collection, Events, GatewayIntentBits, ActivityType, PermissionFlagsBits } = require("discord.js");
 const token = process.env.DISCORD_TOKEN;
+const modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
 
 const client = new Client({
 	intents: [
@@ -42,7 +43,7 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, (readyClient) => {
 	console.log(`Ready! Logged in as ${readyClient.user.tag}`);
 	client.user.setPresence({
-		activities: [{ name: `tier 2 drivers crash`, type: ActivityType.Watching }],
+		activities: [{ name: `backmarkers crash`, type: ActivityType.Watching }],
 		status: 'online',
 	});
 });
@@ -75,18 +76,71 @@ client.on(Events.InteractionCreate, async (interaction) => {
 	}
 });
 
-// Prizm messages
-client.on("messageCreate", (msg) => {
-	if (msg.content === "woah") {
-		msg.reply("prizm!");
-	} else if (msg.content === "Woah") {
-		msg.reply("Prizm!");
-	} else if (msg.content === "WOAH") {
-		msg.reply("PRIZM!");
-	}else if(msg.content === ("WoAh" || "wOaH")) {
-		msg.reply("PrIzM!");
-	} else if (msg.content.toLowerCase().includes("woah")) {
-		msg.reply("Prizm!");
+// Woah Prizm
+function transformCase(input, output) {
+	let result = '';
+	for (let i = 0; i < input.length; i++) {
+		if (i < output.length) {
+			if (input[i] === input[i].toUpperCase()) {
+				result += output[i].toUpperCase();
+			} else {
+				result += output[i].toLowerCase();
+			}
+		} else {
+			result += output[i] || '';
+		}
+	}
+	// Handle the 'm' in 'prizm' separately
+	if (input[input.length - 1] === input[input.length - 1].toUpperCase()) {
+		result += 'M';
+	} else {
+		result += 'm';
+	}
+	return result;
+}
+
+// Regex to match Discord invite links
+const regex = /((https?:\/\/)?(www\.)?)?(discord\.(gg|io|me|li|club)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi;
+
+client.on("messageCreate", async (msg) => {
+	if (regex.test(msg.content) && !msg.member.permissions.has(PermissionFlagsBits.Administrator)) { // If the message contains a Discord invite link
+		try {
+			// Attempt to send a DM to the user
+			await msg.author.send("You are not allowed to send invite links in **Virtual Racing League**. Please review the server rules.");
+			// Notify mods about the user's invite link attempt
+			const modChannel = client.channels.cache.get(modChannelId);
+			if (modChannel) {
+				try {
+					await modChannel.send(`User ${msg.author.tag} tried to send an invite link in ${msg.channel}.`);
+				} catch (error) {
+					console.error(`Failed to send message to mod channel: ${error}`);
+				}
+			}
+		} catch (error) {
+			console.error(`Could not send DM to ${msg.author.tag}.\n`, error);
+			// Notify mods about the failed DM attempt and the user's invite link attempt
+			const modChannel = client.channels.cache.get(modChannelId);
+			if (modChannel) {
+				try {
+					await modChannel.send(`Failed to send DM to user ${msg.author.tag} who tried to send an invite link in ${msg.channel}. User may have DMs disabled.`);
+				} catch (error) {
+					console.error(`Failed to send message to mod channel: ${error}`);
+				}
+			}
+		}
+		// Delete the message containing the invite link
+		msg.delete().catch(console.error);
+	}
+
+// Woah Prizm
+	const content = msg.content.toLowerCase();
+	if (content.includes("woah")) {
+		// Extract "woah" from the message content
+		const woahMatch = msg.content.match(/woah/i);
+		if (woahMatch) {
+			const transformedPrizm = transformCase(woahMatch[0], "priz");
+			await msg.reply(transformedPrizm);
+		}
 	}
 });
 
