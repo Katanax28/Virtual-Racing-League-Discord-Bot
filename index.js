@@ -1,4 +1,4 @@
-require('./functions/twitchNotifier.js');
+// require('./functions/twitchNotifier.js');
 
 require("dotenv").config();
 const fs = require("node:fs");
@@ -6,6 +6,9 @@ const path = require("node:path");
 const { Client, Collection, Events, GatewayIntentBits, ActivityType, PermissionFlagsBits } = require("discord.js");
 const token = process.env.DISCORD_TOKEN;
 const modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
+
+let lastUsedTimestamp = 0;
+const cooldownAmount = 10 * 60 * 1000; // 10 minutes in milliseconds
 
 const client = new Client({
 	intents: [
@@ -142,6 +145,25 @@ client.on("messageCreate", async (msg) => {
 			await msg.reply(transformedPrizm);
 		}
 	}
+
+	if(content.includes("fuck")){
+		const now = Date.now();
+
+		if (now < lastUsedTimestamp + cooldownAmount) {
+			return;
+		}
+
+		// Update the last used timestamp
+		lastUsedTimestamp = now;
+
+		await msg.reply(`**Fact:** Language used in Discord server
+		
+**Infringement:** Breach of Article 12.2.1.k of the International Sporting Code
+
+**Decision:** Write formal apology to Admins of the Discord server. 
+		`)
+	}
 });
+
 
 client.login(token);
