@@ -345,7 +345,7 @@ module.exports = {
             });
 
             // Confirmation of command
-            await editInteractionReply(interaction, `Tier 1 checkin complete.`)
+            await editInteractionReply(interaction, `Check-in complete.`)
 
             // When an interaction with the buttons occurs
             client.on("interactionCreate", async (interaction) => {
