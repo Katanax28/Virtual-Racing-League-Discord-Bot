@@ -70,7 +70,7 @@ module.exports = {
                 .setRequired(true)
                 .addChoices(
                     {name: 'Tier 1', value: 1},
-                    {name: 'Tier 2', value: 2}
+                    {name: 'Tier 24', value: 24}
                 )
         )
         .addNumberOption((option) =>
@@ -98,7 +98,7 @@ module.exports = {
                 lineupChannelId = "780986553689571358";
                 requiredRoleId = "786932803660283925";
                 colorCode = "#004BA0";
-            } else if (tier.value === 2) {
+            } else if (tier.value === 24) {
                 lineupChannelId = "789226527186223105";
                 requiredRoleId = "789474486277505045";
                 colorCode = "#2ECC71";
@@ -272,11 +272,11 @@ module.exports = {
                 logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
                 console.log("Tier 1 activated, time:" + nextSunday.getTime())
             }
-            if (tier.value === 2) {
+            if (tier.value === 24) {
                 unixTimestamp = Math.floor(nextSaturday.getTime() / 1000);
                 reminderTime = new Date(nextSaturday.getTime() - 48 * 60 * 60 * 1000);
                 logTime = new Date(nextSaturday.getTime() - 24 * 60 * 60 * 1000);
-                console.log("Tier 2 activated, time:" + nextSaturday.getTime())
+                console.log("Tier 24 activated, time:" + nextSaturday.getTime())
             }
 
             const embed = new EmbedBuilder()
