@@ -38,7 +38,7 @@ module.exports = {
                     {name: "Brazil", value: "brazil"},
                     {name: "Canada", value: "canada"},
                     {name: "China", value: "china"},
-                    {name: "France", value: "france"},
+                    // {name: "France", value: "france"},
                     {name: "Great Britain", value: "britain"},
                     {name: "Hungary", value: "hungary"},
                     {name: "Imola", value: "imola"},
@@ -47,7 +47,7 @@ module.exports = {
                     {name: "Las Vegas", value: "vegas"},
                     {name: "Mexico", value: "mexico"},
                     {name: "Miami", value: "miami"},
-                    // { name: 'Monaco', value: 'monaco' },
+                    {name: 'Monaco', value: 'monaco' },
                     {name: "Netherlands", value: "netherlands"},
                     {name: "Portugal", value: "portugal"},
                     {name: "Qatar", value: "qatar"},
@@ -147,10 +147,10 @@ module.exports = {
                     name: "China",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290393075306626/chn.png",
                 },
-                france: {
-                    name: "France",
-                    link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290410833973268/fra.png",
-                },
+                // france: {
+                //     name: "France",
+                //     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290410833973268/fra.png",
+                // },
                 britain: {
                     name: "Great Britain",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290416869585036/gbr.png",
@@ -183,7 +183,9 @@ module.exports = {
                     name: "Miami",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",
                 },
-                // 'monaco': { name: 'Monaco', link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png' },
+                monaco: {
+                    name: 'Monaco',
+                    link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png' },
                 netherlands: {
                     name: "Netherlands",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290465716453446/nld.png",
