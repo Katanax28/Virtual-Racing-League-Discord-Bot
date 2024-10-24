@@ -146,7 +146,7 @@ client.on("messageCreate", async (msg) => {
 		}
 	}
 
-	if(content.includes("fuck")){
+	if(content.includes("fuck") && (!msg.member.roles.cache.some(role => role.name === 'Moderator') && !msg.member.roles.cache.some(role => role.name === 'Admin'))){
 		const now = Date.now();
 
 		if (now < lastUsedTimestamp + cooldownAmount) {
