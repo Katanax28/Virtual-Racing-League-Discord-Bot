@@ -44,7 +44,7 @@ module.exports = {
                     {name: "Imola", value: "imola"},
                     {name: "Italy", value: "monza"},
                     {name: "Japan", value: "japan"},
-                    {name: "Las Vegas", value: "vegas"},
+                    // {name: "Las Vegas", value: "vegas"},
                     {name: "Mexico", value: "mexico"},
                     {name: "Miami", value: "miami"},
                     {name: 'Monaco', value: 'monaco' },
@@ -54,7 +54,8 @@ module.exports = {
                     {name: "Saudi Arabia", value: "saudi"},
                     {name: "Singapore", value: "singapore"},
                     {name: "Spain", value: "spain"},
-                    {name: "Texas", value: "cota"}
+                    {name: "Texas", value: "cota"},
+                    {name: "Random", value: "random"}
                 )
         )
         .addStringOption((option) =>
@@ -171,10 +172,10 @@ module.exports = {
                     name: "Japan",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290439443329054/jpn.png",
                 },
-                vegas: {
-                    name: "Las Vegas",
-                    link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",
-                },
+                // vegas: {
+                //     name: "Las Vegas",
+                //     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",
+                // },
                 mexico: {
                     name: "Mexico",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290457852133376/mex.png",
@@ -214,6 +215,10 @@ module.exports = {
                     name: "Texas",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",
                 },
+                random: {
+                    name: "Random Track!",
+                    link: "https://cdn.discordapp.com/attachments/1198290212678271096/1309258478237520025/2560px-Flag_with_question_mark.png?ex=6740ed7a&is=673f9bfa&hm=8751a9f32d6546410dd2b025582c427ca2314678aaa5628ddd26d64f508822f7&",
+                }
             };
 
             // Extract the country and title from the command
