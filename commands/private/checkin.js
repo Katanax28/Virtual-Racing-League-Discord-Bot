@@ -384,15 +384,17 @@ module.exports = {
 
                 let currentdate = new Date();
                 if (currentdate > logTime) {
+                    const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
                     await editInteractionReply(interaction, "The deadline for checking in has passed. If you have a good reason for missing the deadline, please message an admin.");
-                    console.log("logtime passed, interaction ignored.");
+                    console.log(`User ${member.user.username} tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
                     return;
                 }
 
                 // Check if the user has the role required to check in for that particular tier.
                 if (!interaction.member.roles.cache.has(requiredRoleId)) {
                     await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
-                    console.log("Missing role, interaction ignored.");
+                    const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
+                    console.log(`User ${member.user.username} is missing the correct role to check in. Interaction ignored.`);
                     return;
                 }
 
@@ -475,8 +477,7 @@ module.exports = {
                 }
 
                 try {
-                    const guild = interaction.guild; // Get the guild from the interaction
-                    const member = await fetchMember(guild, interaction.user.id).catch(console.error);
+                    const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
                     if (member) {
 						let newDate = new Date();
 						let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
