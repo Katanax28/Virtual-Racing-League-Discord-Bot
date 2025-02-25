@@ -147,7 +147,7 @@ async function sendLog(form) {
 			);
 		}
 	} catch (error){
-		logChannel.send('Message does not exist or is deleted: ');
+		logChannel.send('Message does not exist or is deleted: ', error);
 	}
 
 }
