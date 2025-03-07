@@ -1,7 +1,8 @@
 const fs = require("fs");
 require("dotenv").config();
-const {parentPort, workerData, isMainThread} = require("worker_threads");
-const {Client, Intents, GatewayIntentBits} = require("discord.js");
+const {parentPort, isMainThread} = require("worker_threads");
+const {Client, GatewayIntentBits} = require("discord.js");
+const {removeWorkers} = require("./workerManager");
 const token = process.env.DISCORD_TOKEN;
 
 // Initialize the global variable with initial data that is persisted to disk
@@ -43,9 +44,7 @@ function pendingSchedule() {
             saveScheduleData(scheduleData)
         } else {
             saveScheduleData([]);
-            if(parentPort){
-                parentPort.close();
-            }
+            removeWorkers();
         }
     });
 }
@@ -121,7 +120,6 @@ async function sendReminder(form) {
     const checkinChannel = await client.channels.fetch(form.checkinChannelId);
     const logChannel = await client.channels.fetch("1197557814135095296");
     try {
-        const message = await checkinChannel.messages.fetch(globalMessageId);
         if (form.pendingField !== "None") {
             await checkinChannel.send(
                 `Reminder to those who have not yet confirmed their attendance:\n${form.pendingField}`
@@ -142,11 +140,9 @@ async function sendLog(form) {
         intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
     });
     await client.login(token);
-    const checkinChannel = await client.channels.fetch(form.checkinChannelId);
     const modChannel = await client.channels.fetch(form.modChannelId);
     const logChannel = await client.channels.fetch("1197557814135095296");
     try {
-        const message = await checkinChannel.messages.fetch(globalMessageId);
         if (form.declinedField !== "None") {
             await modChannel.send(
                 `Attendance log:\n${form.declinedField}`

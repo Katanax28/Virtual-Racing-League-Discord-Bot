@@ -55,8 +55,6 @@ module.exports = (client) => {
                 return;
             }
 
-            workerManager.listWorkers();
-            console.log(`${buttonPressMessage.id}`)
             const reminderWorker = workerManager.getWorker(buttonPressMessage.id);
 
             try {

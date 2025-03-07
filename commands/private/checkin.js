@@ -343,7 +343,6 @@ module.exports = {
 
             const reminderWorker = new Worker("./workers/reminderWorker.js");
             workerManager.addWorker(embedMessage.id, reminderWorker);
-            console.log(`Worker created. embedMessage.id: ${embedMessage.id}.`)
             reminderWorker.postMessage({
                 type: "init",
                 reminderTime: reminderTime.getTime(),
