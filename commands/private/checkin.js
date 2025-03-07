@@ -1,8 +1,16 @@
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle, SlashCommandBuilder, PermissionFlagsBits, EmbedBuilder, } = require("discord.js");
+const {
+    ActionRowBuilder,
+    ButtonBuilder,
+    ButtonStyle,
+    SlashCommandBuilder,
+    PermissionFlagsBits,
+    EmbedBuilder,
+} = require("discord.js");
 const {Worker} = require("worker_threads");
 require("dotenv").config();
-modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
-checkinChannelId = process.env.DISCORD_CHECKIN_CHANNEL_ID;
+let modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
+let checkinChannelId = process.env.DISCORD_CHECKIN_CHANNEL_ID;
+const workerManager = require('../../workers/workerManager');
 
 // function list
 function createButton(customId, label, style) {
@@ -47,7 +55,7 @@ module.exports = {
                     // {name: "Las Vegas", value: "vegas"},
                     {name: "Mexico", value: "mexico"},
                     {name: "Miami", value: "miami"},
-                    {name: 'Monaco', value: 'monaco' },
+                    {name: 'Monaco', value: 'monaco'},
                     {name: "Netherlands", value: "netherlands"},
                     {name: "Portugal", value: "portugal"},
                     {name: "Qatar", value: "qatar"},
@@ -186,7 +194,8 @@ module.exports = {
                 },
                 monaco: {
                     name: 'Monaco',
-                    link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png' },
+                    link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png'
+                },
                 netherlands: {
                     name: "Netherlands",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290465716453446/nld.png",
@@ -235,13 +244,13 @@ module.exports = {
 
             // Fetch the members from the corresponding tiers lineups message
             const listChannel = await client.channels.fetch(lineupChannelId);
-            const messages = await listChannel.messages.fetch({limit: 1});
-            if (!messages.size) {
+            const driverListMessages = await listChannel.messages.fetch({limit: 1});
+            if (!driverListMessages.size) {
                 await interaction.editReply("No messages found in the list channel.");
                 return;
             }
-            const message = messages.first();
-            const mentionMatches = message.content.match(/<@(\d+)>/g);
+            const driverListMessage = driverListMessages.first();
+            const mentionMatches = driverListMessage.content.match(/<@(\d+)>/g);
 
             // Create the accept and decline buttons
             const accept = createButton("accept", "Accept", ButtonStyle.Success);
@@ -249,9 +258,7 @@ module.exports = {
 
             const row = new ActionRowBuilder().addComponents(accept, decline);
 
-            // Initialize the fields
-            const acceptedMembers = [];
-            const declinedMembers = [];
+            // List the members that need to accept the check-in
             const pendingMembers = mentionMatches.map((mention) => `${mention}`);
 
             // Calculate the date of the next Sunday at 6pm CET
@@ -296,12 +303,12 @@ module.exports = {
                 .addFields(
                     {
                         name: "✅ Accepted",
-                        value: acceptedMembers.join("\n") || "None",
+                        value: "None",
                         inline: true,
                     },
                     {
                         name: "❌ Declined",
-                        value: declinedMembers.join("\n") || "None",
+                        value: "None",
                         inline: true,
                     },
                     {
@@ -310,7 +317,7 @@ module.exports = {
                         inline: true,
                     }
                 )
-            let messageFind = undefined;
+            let embedMessage = undefined;
             // Creating the check-in
             const checkinChannel = await client.channels.fetch(checkinChannelId).catch(console.error);
             await checkinChannel
@@ -320,13 +327,13 @@ module.exports = {
                     components: [row],
                 })
                 .then((message) => {
-                    messageFind = message;
+                    embedMessage = message;
                 })
                 .catch(console.error);
 
             const modChannel = await client.channels.fetch(modChannelId).catch(console.error);
 
-            const embedFind = messageFind.embeds[0];
+            const embedFind = embedMessage.embeds[0];
             const pendingField = embedFind.fields.find(
                 (field) => field.name === "❓ Pending"
             );
@@ -335,6 +342,8 @@ module.exports = {
             );
 
             const reminderWorker = new Worker("./workers/reminderWorker.js");
+            workerManager.addWorker(embedMessage.id, reminderWorker);
+            console.log(`Worker created. embedMessage.id: ${embedMessage.id}.`)
             reminderWorker.postMessage({
                 type: "init",
                 reminderTime: reminderTime.getTime(),
@@ -344,8 +353,9 @@ module.exports = {
                 pendingField: pendingField,
                 declinedField: declinedField,
                 checkinChannelId: checkinChannel.id,
-                messageId: messageFind.id,
+                messageId: embedMessage.id,
                 modChannelId: modChannel.id,
+                requiredRoleId: requiredRoleId,
             });
             reminderWorker.on("error", (err) => {
                 console.error("An error occurred in the worker:", err);
@@ -354,146 +364,9 @@ module.exports = {
             // Confirmation of command
             await editInteractionReply(interaction, `Check-in complete.`)
 
-            // When an interaction with the buttons occurs
-            client.on("interactionCreate", async (interaction) => {
-                if (!interaction.isButton()) return;
-                await interaction.deferReply({ephemeral: true}).catch(error => {});
-
-                // Check if the interaction is related to the specific message
-                const message = await interaction.message.fetch().catch(console.error);
-                if (message.id !== messageFind.id){
-                    return;
-                }
-
-                try{
-                    const guild = interaction.guild; // Get the guild from the interaction
-                    const member = await fetchMember(guild, interaction.user.id).catch(console.error);
-                    if (member) {
-                        let newDate = new Date();
-                        let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
-                            + "/" + newDate.getFullYear() + " @ "
-                            + newDate.getHours() + ":"
-                            + newDate.getMinutes() + ":" + newDate.getSeconds();
-                        console.log(`${datetime} | ${member.user.username} has interacted with a button`);
-                    } else {
-                        console.log('Critical error: Member not found');
-                    }
-                } catch (error) {
-                    console.error('Something went wrong, your program sucks:', error);
-                }
-
-                let currentdate = new Date();
-                if (currentdate > logTime) {
-                    const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
-                    await editInteractionReply(interaction, "The deadline for checking in has passed. If you have a good reason for missing the deadline, please message an admin.");
-                    console.log(`User ${member.user.username} tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
-                    return;
-                }
-
-                // Check if the user has the role required to check in for that particular tier.
-                if (!interaction.member.roles.cache.has(requiredRoleId)) {
-                    await editInteractionReply(interaction, "You do not have the required role to interact with this button.");
-                    const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
-                    console.log(`User ${member.user.username} is missing the correct role to check in. Interaction ignored.`);
-                    return;
-                }
-
-                const embed = message.embeds[0];
-                const fields = {
-                    "Accepted": embed.fields.find((field) => field.name.startsWith("✅ Accepted")),
-                    "Declined": embed.fields.find((field) => field.name.startsWith("❌ Declined")),
-                    "Pending": embed.fields.find((field) => field.name.startsWith("❓ Pending")),
-                };
-
-                // Find the user in the fields and move them to the appropriate field
-                const userId = `<@${interaction.user.id}>`;
-                const targetField = interaction.customId === "accept" ? "Accepted" : "Declined";
-
-                // If the user is not in the pending list, add them directly to the accepted or declined field
-                if (!fields["Pending"].value.includes(userId) && !fields["Accepted"].value.includes(userId) && !fields["Declined"].value.includes(userId)) {
-                    if (fields[targetField].value === "None" || fields[targetField].value === "") {
-                        fields[targetField].value = userId;
-                    } else {
-                        fields[targetField].value = `${fields[targetField].value}\n${userId}`.trim();
-                    }
-                } else {
-                    for (const [fieldName, field] of Object.entries(fields)) {
-                        if (interaction.message.id === messageFind.id && field.value.includes(userId)) {
-                            // If the user is already in the target field, do not modify the fields or the message
-                            if (fieldName === targetField) {
-                                await editInteractionReply(interaction, `You are already registered as ${fieldName}.`);
-                                console.log("User already registered as " + fieldName + ", interaction ignored.")
-                                return;
-                            }
-                            field.value = field.value.replace(userId, "").trim();
-                            if (fields[targetField].value === "None" || fields[targetField].value === "") {
-                                fields[targetField].value = userId;
-                            } else {
-                                fields[targetField].value = `${fields[targetField].value}\n${userId}`.trim();
-                            }
-                            break;
-                        }
-                    }
-                }
-
-                // Check if any field is empty and set it to 'None'
-                for (const field of Object.values(fields)) {
-                    if (field.value.trim() === "") {
-                        field.value = "None";
-                    } else {
-                        // Get rid of double newlines
-                        field.value = field.value.replace(/\n\n/g, "\n");
-                    }
-                }
-
-                // Split the value of each field by newline to get an array of members
-                const acceptedMembersArray = fields["Accepted"].value.split("\n");
-                const declinedMembersArray = fields["Declined"].value.split("\n");
-                const pendingMembersArray = fields["Pending"].value.split("\n");
-
-                // Get the length of each array to find the count of members
-                const acceptedCount = acceptedMembersArray[0] === "None" ? 0 : acceptedMembersArray.length;
-                const declinedCount = declinedMembersArray[0] === "None" ? 0 : declinedMembersArray.length;
-                const pendingCount = pendingMembersArray[0] === "None" ? 0 : pendingMembersArray.length;
-
-                fields["Accepted"].name = `✅ Accepted (${acceptedCount})`;
-                fields["Declined"].name = `❌ Declined (${declinedCount})`;
-                fields["Pending"].name = `❓ Pending (${pendingCount})`;
-
-                // Edit the message with the new content
-                await message.edit({embeds: [embed]}).catch(console.error);
-
-                reminderWorker.postMessage({
-                    type: "update",
-                    pendingField: fields["Pending"],
-                    declinedField: fields["Declined"],
-                    messageId: messageFind.id,
-                });
-
-                await editInteractionReply(interaction, "Attendance updated.").catch(console.error);
-
-                async function fetchMember(guild, memberId) {
-                    return await guild.members.fetch(memberId).catch(console.error);
-                }
-
-                try {
-                    const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
-                    if (member) {
-						let newDate = new Date();
-						let datetime = newDate.getDate() + "/" + (newDate.getMonth() + 1)
-							+ "/" + newDate.getFullYear() + " @ "
-							+ newDate.getHours() + ":"
-							+ newDate.getMinutes() + ":" + newDate.getSeconds();
-                        console.log(`${datetime} | ${member.user.username} has moved to ${targetField} for Tier ${tier.value}: ${countryName} checkin`);
-                    } else {
-                        console.log('Member not found');
-                    }
-                } catch (error) {
-                    console.error('Failed to log the change:', error);
-                }
-            });
         } catch (error) {
-            console.error('An error occured', error);
+            console.error('An error occurred', error);
         }
-    }
+    },
+    editInteractionReply
 }
