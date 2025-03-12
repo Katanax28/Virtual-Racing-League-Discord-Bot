@@ -56,7 +56,7 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
     client.user.setPresence({
-        activities: [{name: `this bot crash`, type: ActivityType.Watching}],
+        activities: [{name: `backmarkers crash`, type: ActivityType.Watching}],
         status: 'online',
     });
     // Fetch modChannel
