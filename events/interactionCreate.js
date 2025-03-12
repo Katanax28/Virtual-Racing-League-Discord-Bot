@@ -3,6 +3,7 @@ const { editInteractionReply } = require('../commands/private/checkin.js');
 const fs = require('fs');
 const path = require('path');
 const workerManager = require('../workers/workerManager');
+let logChannelId = process.env.DISCORD_LOG_CHANNEL_ID;
 
 // Read and parse the JSON data from scheduleData.json
 const scheduleDataPath = path.join(__dirname, '../scheduleData.json');
@@ -81,6 +82,8 @@ module.exports = (client) => {
                 const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
                 await editInteractionReply(interaction, "The deadline for checking in has passed. If you think something is wrong, please message an admin.");
                 console.log(`User ${member.user.username} tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
+                const logChannel = await client.channels.fetch(logChannelId).catch(console.error);
+                await logChannel.send(`User ${member.user.username} tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
                 return;
             }
 
