@@ -61,7 +61,7 @@ if(!isMainThread) {
 			declinedField,
 			checkinChannelId,
 			messageId,
-			modChannelId,
+			logChannelId,
 			requiredRoleId,
 		} = message;
 
@@ -79,7 +79,7 @@ if(!isMainThread) {
 						reminderTime: reminderTime,
 						logTime: logTime,
 						checkinChannelId: checkinChannelId,
-						modChannelId: modChannelId,
+						logChannelId: logChannelId,
 						pendingField: pendingField,
 						declinedField: declinedField,
 						reminderTimeElapsed: false,
@@ -140,16 +140,15 @@ async function sendLog(form) {
         intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
     });
     await client.login(token);
-    const modChannel = await client.channels.fetch(form.modChannelId);
-    const logChannel = await client.channels.fetch("1197557814135095296");
+    const logChannel = await client.channels.fetch(form.logChannelId);
     try {
         if (form.declinedField !== "None") {
-            await modChannel.send(
+            await logChannel.send(
                 `Attendance log:\n${form.declinedField}`
             );
         }
     } catch (error) {
-        logChannel.send('Message to log does not exist or is deleted: ', error);
+        logChannel.send('Tried to log, but message does not exist or is deleted. Error: ', error);
     }
 }
 

@@ -14,8 +14,8 @@ const {
 } = require("discord.js");
 const {pendingSchedule} = require("./workers/reminderWorker");
 const token = process.env.DISCORD_TOKEN;
-const modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
-let modChannel;
+const logChannelId = process.env.DISCORD_LOG_CHANNEL_ID;
+let logChannel;
 
 const client = new Client({
     intents: [
@@ -59,8 +59,8 @@ client.once(Events.ClientReady, (readyClient) => {
         activities: [{name: `backmarkers crash`, type: ActivityType.Watching}],
         status: 'online',
     });
-    // Fetch modChannel
-    modChannel = client.channels.cache.get(modChannelId);
+    // Fetch logChannel
+    logChannel = client.channels.cache.get(logChannelId);
 
     // Check if any check-ins have passed the log- or reminder time.
     setInterval(pendingSchedule, (120 * 1000));
@@ -96,9 +96,9 @@ client.on("messageCreate", async (msg) => {
     if (regex.test(msg.content) && !msg.member.permissions.has(PermissionFlagsBits.Administrator)) { // If the message contains a Discord invite link
         try {
             // Log the invite attempt
-            if (modChannel) {
+            if (logChannel) {
                 console.log(`User ${msg.author.tag} tried to send an invite link in ${msg.channel}.`)
-                await modChannel.send(`User <@${msg.author.id}> (${msg.author.tag}) tried to send an invite link in ${msg.channel}.`);
+                await logChannel.send(`User <@${msg.author.id}> (${msg.author.tag}) tried to send an invite link in ${msg.channel}.`);
             }
             // Warn user for invite attempt
             await msg.author.send("You are not allowed to send invite links in **Virtual Racing League**.")

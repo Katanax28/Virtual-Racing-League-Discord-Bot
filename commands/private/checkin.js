@@ -8,7 +8,7 @@ const {
 } = require("discord.js");
 const {Worker} = require("worker_threads");
 require("dotenv").config();
-let modChannelId = process.env.DISCORD_MOD_CHANNEL_ID;
+let logChannelId = process.env.DISCORD_LOG_CHANNEL_ID;
 let checkinChannelId = process.env.DISCORD_CHECKIN_CHANNEL_ID;
 const workerManager = require('../../workers/workerManager');
 
@@ -331,7 +331,7 @@ module.exports = {
                 })
                 .catch(console.error);
 
-            const modChannel = await client.channels.fetch(modChannelId).catch(console.error);
+            const logChannel = await client.channels.fetch(logChannelId).catch(console.error);
 
             const embedFind = embedMessage.embeds[0];
             const pendingField = embedFind.fields.find(
@@ -353,7 +353,7 @@ module.exports = {
                 declinedField: declinedField,
                 checkinChannelId: checkinChannel.id,
                 messageId: embedMessage.id,
-                modChannelId: modChannel.id,
+                logChannelId: logChannel.id,
                 requiredRoleId: requiredRoleId,
             });
             reminderWorker.on("error", (err) => {
