@@ -98,7 +98,7 @@ client.on("messageCreate", async (msg) => {
             // Log the invite attempt
             if (modChannel) {
                 console.log(`User ${msg.author.tag} tried to send an invite link in ${msg.channel}.`)
-                await modChannel.send(`User ${msg.author.tag} tried to send an invite link in ${msg.channel}.`);
+                await modChannel.send(`User <@${msg.author.id}> (${msg.author.tag}) tried to send an invite link in ${msg.channel}.`);
             }
             // Warn user for invite attempt
             await msg.author.send("You are not allowed to send invite links in **Virtual Racing League**.")
