@@ -81,7 +81,7 @@ module.exports = (client) => {
             if (logTime == null || currentDate > logTime) {
                 const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
                 await editInteractionReply(interaction, "The deadline for checking in has passed. If you think something is wrong, please message an admin.");
-                console.log(`User ${member.user.username} tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
+                console.log(`User <@${member.user.id}> (${member.user.username}) tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
                 const logChannel = await client.channels.fetch(logChannelId).catch(console.error);
                 await logChannel.send(`User ${member.user.username} tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
                 return;

@@ -144,7 +144,7 @@ async function sendLog(form) {
     try {
         if (form.declinedField !== "None") {
             await logChannel.send(
-                `Attendance log:\n${form.declinedField}`
+                `List of drivers who checked out for tomorrow's race:\n${form.declinedField}`
             );
         }
     } catch (error) {
