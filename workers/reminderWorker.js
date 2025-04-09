@@ -13,6 +13,7 @@ function saveScheduleData(scheduleData = JSON.parse("[]")) {
 }
 
 let globalMessageId;
+let globalMessageTitle;
 
 function pendingSchedule() {
     fs.readFile("scheduleData.json", (err, data) => {
@@ -66,6 +67,7 @@ if(!isMainThread) {
 		} = message;
 
 		globalMessageId = messageId;
+        globalMessageTitle = title;
 
 		pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
 		declinedField = declinedField.value.replace(/'|\\+|\n/g, "");
@@ -126,8 +128,16 @@ async function sendReminder(form) {
             );
             console.log(`Reminder sent for check-in with message id: ${form.messageId}`);
         } else {
+            await checkinChannel.send(
+                `Everybody marked their attendance before the reminder! :partying_face:`
+            );
             console.log(`No reminder needed to be sent for check-in with message id: ${form.messageId}`);
         }
+
+        // Send reporting message
+        let reportingChannel = await client.channels.fetch("1197557758778679337")
+        await reportingChannel.send(`Reports opened for ${globalMessageTitle}`);
+
     } catch (error) {
         await logChannel.send('Message to remind does not exist or is deleted: ' + error);
         console.log(`Failed to send reminder for check-in with message id: ${form.messageId}`)
