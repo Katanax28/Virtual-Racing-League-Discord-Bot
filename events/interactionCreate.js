@@ -161,12 +161,17 @@ module.exports = (client) => {
             // Edit the message with the new content
             await buttonPressMessage.edit({embeds: [embed]}).catch(console.error);
 
-            reminderWorker.postMessage({
-                type: "update",
-                pendingField: fields["Pending"],
-                declinedField: fields["Declined"],
-                messageId: buttonPressMessage.id,
-            });
+            try {
+                reminderWorker.postMessage({
+                    type: "update",
+                    pendingField: fields["Pending"],
+                    declinedField: fields["Declined"],
+                    messageId: buttonPressMessage.id,
+                });
+            } catch (e) {
+                const logChannel = await client.channels.fetch(logChannelId).catch(console.error);
+                logChannel.send(`Someone checked in or out. The bot will not be sending a reminder message for this event because an anomaly happened during the uptime of this check-in.`)
+            }
 
             await editInteractionReply(interaction, "Attendance updated.").catch(console.error);
 
