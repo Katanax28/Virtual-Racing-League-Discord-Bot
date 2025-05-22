@@ -93,23 +93,27 @@ function transformCase(input, output) {
 const regex = /((https?:\/\/)?(www\.)?)?(discord\.(gg|io|me|li|club)|discordapp\.com\/invite|discord\.com\/invite)\/.+[a-z]/gi;
 
 client.on("messageCreate", async (msg) => {
-    if (regex.test(msg.content) && !msg.member.permissions.has(PermissionFlagsBits.Administrator)) { // If the message contains a Discord invite link
-        try {
-            // Log the invite attempt
-            if (logChannel) {
-                console.log(`User ${msg.author.tag} tried to send an invite link in ${msg.channel}.`)
-                await logChannel.send(`User <@${msg.author.id}> (${msg.author.tag}) tried to send an invite link in ${msg.channel}.`);
+    try {
+        if (regex.test(msg.content) && !msg.member.permissions.has(PermissionFlagsBits.Administrator)) { // If the message contains a Discord invite link
+            try {
+                // Log the invite attempt
+                if (logChannel) {
+                    console.log(`User ${msg.author.tag} tried to send an invite link in ${msg.channel}.`)
+                    await logChannel.send(`User <@${msg.author.id}> (${msg.author.tag}) tried to send an invite link in ${msg.channel}.`);
+                }
+                // Warn user for invite attempt
+                await msg.author.send("You are not allowed to send invite links in **Virtual Racing League**.")
+                    .catch(() => console.log(`Could not DM ${msg.author.tag} after they sent an invite link.`));
+            } catch (error) {
+                console.error(`Error handling invite link:`, error);
             }
-            // Warn user for invite attempt
-            await msg.author.send("You are not allowed to send invite links in **Virtual Racing League**.")
-                .catch(() => console.log(`Could not DM ${msg.author.tag} after they sent an invite link.`));
-        } catch (error) {
-            console.error(`Error handling invite link:`, error);
-        }
 
-        // Delete the message containing the invite link
-        msg.delete().catch(console.error);
-        msg.channel.messages.cache.delete(msg.id); // Ensure message is removed from cache
+            // Delete the message containing the invite link
+            msg.delete().catch(console.error);
+            msg.channel.messages.cache.delete(msg.id); // Ensure message is removed from cache
+        }
+    } catch {
+        console.log("Right. So I don't know how discord can render a member but not their permissions, but here it is, it happened anyways. This error prevented the bot from crashing but it is not your fault, it's just the discord API doing something that doesn't make sense.");
     }
 
 // Woah Prizm
