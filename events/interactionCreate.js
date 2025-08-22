@@ -171,6 +171,7 @@ module.exports = (client) => {
             } catch (e) {
                 const logChannel = await client.channels.fetch(logChannelId).catch(console.error);
                 logChannel.send(`Someone checked in or out. The bot will not be sending a reminder message for this event because an anomaly happened during the uptime of this check-in.`)
+                console.log(e);
             }
 
             await editInteractionReply(interaction, "Attendance updated.").catch(console.error);

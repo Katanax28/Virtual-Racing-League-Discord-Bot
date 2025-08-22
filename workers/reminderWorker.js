@@ -86,6 +86,7 @@ if(!isMainThread) {
 						declinedField: declinedField,
 						reminderTimeElapsed: false,
 						requiredRoleId: requiredRoleId,
+                        title: title,
 					});
 					saveScheduleData(scheduleData);
 				});
@@ -136,13 +137,12 @@ async function sendReminder(form) {
 
         // Send reporting message
         let reportingChannel = await client.channels.fetch("1197557758778679337")
-        await reportingChannel.send(`Reports opened for ${globalMessageTitle}`);
+        await reportingChannel.send(`# Reports opened for ${form.title}\nYou have 24 hours to report your incidents.`);
 
     } catch (error) {
         await logChannel.send('Message to remind does not exist or is deleted: ' + error);
         console.log(`Failed to send reminder for check-in with message id: ${form.messageId}`)
     }
-
 }
 
 async function sendLog(form) {

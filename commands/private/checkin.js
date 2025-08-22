@@ -79,7 +79,6 @@ module.exports = {
                 .setRequired(true)
                 .addChoices(
                     {name: 'Tier 1', value: 1},
-                    {name: 'Tier 24', value: 24}
                 )
         )
         .addNumberOption((option) =>
@@ -107,11 +106,12 @@ module.exports = {
                 lineupChannelId = "780986553689571358";
                 requiredRoleId = "786932803660283925";
                 colorCode = "#004BA0";
-            } else if (tier.value === 24) {
-                lineupChannelId = "789226527186223105";
-                requiredRoleId = "789474486277505045";
-                colorCode = "#2ECC71";
             }
+            // else if (tier.value === 24) {
+            //     lineupChannelId = "789226527186223105";
+            //     requiredRoleId = "789474486277505045";
+            //     colorCode = "#2ECC71";
+            // }
             // else if(tier.value === 3) {
             // 	lineupChannelId = "961004601757274133"
             // 	requiredRoleId = "961009916024332308"
@@ -121,111 +121,111 @@ module.exports = {
             // Create a mapping of the country values to their corresponding names
             const countryChoices = {
                 abu_dhabi: {
-                    name: "Abu Dhabi",
+                    name: "Abu Dhabi :flag_ae:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290312137814086/are.png",
                 },
                 australia: {
-                    name: "Australia",
+                    name: "Australia :flag_au:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290324733313094/aus.png",
                 },
                 austria: {
-                    name: "Austria",
+                    name: "Austria :flag_at:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290333730078911/aut.png",
                 },
                 azerbaijan: {
-                    name: "Azerbaijan",
+                    name: "Azerbaijan :flag_az:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290343670583306/aze.png",
                 },
                 bahrain: {
-                    name: "Bahrain",
+                    name: "Bahrain :flag_bh:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290370954539008/bhr.png",
                 },
                 belgium: {
-                    name: "Belgium",
+                    name: "Belgium :flag_be:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290358505840730/bel.png",
                 },
                 brazil: {
-                    name: "Brazil",
+                    name: "Brazil :flag_br:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290378726584441/bra.png",
                 },
                 canada: {
-                    name: "Canada",
+                    name: "Canada :flag_ca:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290386565734470/can.png",
                 },
                 china: {
-                    name: "China",
+                    name: "China :flag_cn:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290393075306626/chn.png",
                 },
                 // france: {
-                //     name: "France",
+                //     name: "France :flag_fr:",
                 //     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290410833973268/fra.png",
                 // },
                 britain: {
-                    name: "Great Britain",
+                    name: "Great Britain :flag_gb:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290416869585036/gbr.png",
                 },
                 hungary: {
-                    name: "Hungary",
+                    name: "Hungary :flag_hu:",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290422930346076/hun.png",
                 },
                 imola: {
-                    name: "Imola",
+                    name: "Imola :flag_it:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png",
                 },
                 monza: {
-                    name: "Italy",
+                    name: "Italy :flag_it:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290431667097690/ita.png",
                 },
                 japan: {
-                    name: "Japan",
+                    name: "Japan :flag_jp:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290439443329054/jpn.png",
                 },
                 // vegas: {
-                //     name: "Las Vegas",
+                //     name: "Las Vegas :flag_us:",
                 //     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",
                 // },
                 mexico: {
-                    name: "Mexico",
+                    name: "Mexico :flag_mx:",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290457852133376/mex.png",
                 },
                 miami: {
-                    name: "Miami",
+                    name: "Miami :flag_us:",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",
                 },
                 monaco: {
-                    name: 'Monaco',
+                    name: 'Monaco :flag_mc:',
                     link: 'https://media.discordapp.net/attachments/1198290212678271096/1198290448201027644/mco.png'
                 },
                 netherlands: {
-                    name: "Netherlands",
+                    name: "Netherlands :flag_nl:",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290465716453446/nld.png",
                 },
                 portugal: {
-                    name: "Portugal",
+                    name: "Portugal :flag_pt:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290473819832340/prt.png",
                 },
                 qatar: {
-                    name: "Qatar",
+                    name: "Qatar :flag_qa:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290499174416474/qat.png",
                 },
                 saudi: {
-                    name: "Saudi Arabia",
+                    name: "Saudi Arabia :flag_sa:",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290510423535677/sau.png",
                 },
                 singapore: {
-                    name: "Singapore",
+                    name: "Singapore :flag_sg:",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290516501082173/sgp.png",
                 },
                 spain: {
-                    name: "Spain",
+                    name: "Spain :flag_es:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1198290401820409976/esp.png",
                 },
                 cota: {
-                    name: "Texas",
+                    name: "Texas :flag_us:",
                     link: "https://media.discordapp.net/attachments/1198290212678271096/1198290525183295670/usa.png",
                 },
                 random: {
-                    name: "Random Track!",
+                    name: "Random Track! :question:",
                     link: "https://cdn.discordapp.com/attachments/1198290212678271096/1309258478237520025/2560px-Flag_with_question_mark.png?ex=6740ed7a&is=673f9bfa&hm=8751a9f32d6546410dd2b025582c427ca2314678aaa5628ddd26d64f508822f7&",
                 }
             };
