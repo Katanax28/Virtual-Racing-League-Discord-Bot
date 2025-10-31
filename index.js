@@ -56,14 +56,14 @@ for (const folder of commandFolders) {
 client.once(Events.ClientReady, (readyClient) => {
     console.log(`Ready! Logged in as ${readyClient.user.tag}`);
     client.user.setPresence({
-        activities: [{name: `backmarkers crash`, type: ActivityType.Watching}],
+        activities: [{name: `What if the backmarkers could keep up?`, type: ActivityType.Custom}],
         status: 'online',
     });
     // Fetch logChannel
     logChannel = client.channels.cache.get(logChannelId);
 
     // Check if any check-ins have passed the log- or reminder time.
-    setInterval(pendingSchedule, (120 * 1000));
+    setInterval(() => pendingSchedule(client), (10 * 1000));
 
 });
 

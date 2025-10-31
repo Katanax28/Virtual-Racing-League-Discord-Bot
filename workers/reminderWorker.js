@@ -1,9 +1,6 @@
 const fs = require("fs");
-require("dotenv").config();
-const {parentPort, isMainThread} = require("worker_threads");
-const {Client, GatewayIntentBits} = require("discord.js");
-const {removeWorkers} = require("./workerManager");
-const token = process.env.DISCORD_TOKEN;
+const { parentPort, isMainThread } = require("worker_threads");
+const { removeWorkers, removeWorker} = require("./workerManager");
 
 // Initialize the global variable with initial data that is persisted to disk
 function saveScheduleData(scheduleData = JSON.parse("[]")) {
@@ -15,31 +12,43 @@ function saveScheduleData(scheduleData = JSON.parse("[]")) {
 let globalMessageId;
 let globalMessageTitle;
 
-function pendingSchedule() {
+function pendingSchedule(client) {
     fs.readFile("scheduleData.json", (err, data) => {
         if (err) throw err;
         let scheduleData = JSON.parse(data);
-        const currentTime = new Date();
+        const now = new Date();
 
         const remindersPast = scheduleData.filter(
-            (item) => item.reminderTime < currentTime
+            (item) => item.reminderTime < now
         );
         const logTimePast = scheduleData.filter(
-            (item) => item.logTime < currentTime
+            (item) => item.logTime < now
         );
+        const reportOpenTimePast = scheduleData.filter((
+            (item) => item.reportOpenTime < now
+        ))
 
         remindersPast.forEach((form) => {
             if (!form.reminderTimeElapsed) {
-                sendReminder(form);
+                sendReminder(form, client);
             }
-            let updatedScheduleData = scheduleData.find((e) => e.id === form.id);
+            const updatedScheduleData = scheduleData.find((e) => e.id === form.id);
             updatedScheduleData.reminderTimeElapsed = true;
         });
 
         logTimePast.forEach((form) => {
-            sendLog(form);
-            scheduleData = scheduleData.filter((item) => item.id !== form.id);
+            if(!form.logTimeElapsed) {
+                sendLog(form, client);
+            }
+            const updatedScheduleData = scheduleData.find((e) => e.id === form.id);
+            updatedScheduleData.logTimeElapsed = true;
         });
+
+        reportOpenTimePast.forEach((form) => {
+            sendReportsOpened(form, client);
+            removeWorker(form.id);
+            scheduleData = scheduleData.filter((item) => item.id !== form.id);
+        })
 
         if (scheduleData.length > 0) {
             saveScheduleData(scheduleData)
@@ -50,79 +59,78 @@ function pendingSchedule() {
     });
 }
 
-if(!isMainThread) {
-	parentPort.on("message", (message) => {
-		let {
-			type,
-			reminderTime,
-			logTime,
-			title,
-			countryName,
-			pendingField,
-			declinedField,
-			checkinChannelId,
-			messageId,
-			logChannelId,
-			requiredRoleId,
-		} = message;
+if (!isMainThread) {
+    parentPort.on("message", (message) => {
+        let {
+            type,
+            reminderTime,
+            logTime,
+            reportOpenTime,
+            title,
+            countryName,
+            pendingField,
+            declinedField,
+            checkinChannelId,
+            messageId,
+            logChannelId,
+            requiredRoleId,
+        } = message;
 
-		globalMessageId = messageId;
+        globalMessageId = messageId;
         globalMessageTitle = title;
 
-		pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
-		declinedField = declinedField.value.replace(/'|\\+|\n/g, "");
-		switch (type) {
-			case "init":
-				fs.readFile("scheduleData.json", (err, data) => {
-					if (err) throw err;
-					scheduleData = JSON.parse(data);
-					scheduleData.push({
-						id: messageId,
-						reminderTime: reminderTime,
-						logTime: logTime,
-						checkinChannelId: checkinChannelId,
-						logChannelId: logChannelId,
-						pendingField: pendingField,
-						declinedField: declinedField,
-						reminderTimeElapsed: false,
-						requiredRoleId: requiredRoleId,
+        pendingField = pendingField.value.replace(/'|\\+|\n/g, "");
+        declinedField = declinedField.value.replace(/'|\\+|\n/g, "");
+        switch (type) {
+            case "init":
+                fs.readFile("scheduleData.json", (err, data) => {
+                    if (err) throw err;
+                    let scheduleData = JSON.parse(data);
+                    scheduleData.push({
+                        id: messageId,
+                        reminderTime: reminderTime,
+                        logTime: logTime,
+                        reportOpenTime: reportOpenTime,
+                        checkinChannelId: checkinChannelId,
+                        logChannelId: logChannelId,
+                        pendingField: pendingField,
+                        declinedField: declinedField,
+                        reminderTimeElapsed: false,
+                        logTimeElapsed: false,
+                        requiredRoleId: requiredRoleId,
                         title: title,
-					});
-					saveScheduleData(scheduleData);
-				});
+                        countryName: countryName,
+                    });
+                    saveScheduleData(scheduleData);
+                });
 
-				break;
-			case "update":
-				fs.readFile("scheduleData.json", (err, data) => {
-					if (err) throw err;
-					scheduleData = JSON.parse(data);
-					const pollData = scheduleData.find((e) => e.id === messageId);
-					if (pollData !== undefined) {
-						pollData.pendingField = pendingField;
-						pollData.declinedField = declinedField;
-					}
-					saveScheduleData(scheduleData);
-				});
+                break;
+            case "update":
+                fs.readFile("scheduleData.json", (err, data) => {
+                    if (err) throw err;
+                    scheduleData = JSON.parse(data);
+                    const pollData = scheduleData.find((e) => e.id === messageId);
+                    if (pollData !== undefined) {
+                        pollData.pendingField = pendingField;
+                        pollData.declinedField = declinedField;
+                    }
+                    saveScheduleData(scheduleData);
+                });
 
-				break;
-			default:
-				console.log("Invalid message type");
-		}
+                break;
+            default:
+                console.log("Invalid message type");
+        }
 
-		// Send a response back to the main thread
-		parentPort.postMessage("Data updated successfully");
-	});
+        // Send a response back to the main thread
+        parentPort.postMessage("Data updated successfully");
+    });
 }
 
 // send reminder message
-async function sendReminder(form) {
-    const client = new Client({
-        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
-    });
-    await client.login(token);
-    const checkinChannel = await client.channels.fetch(form.checkinChannelId);
-    const logChannel = await client.channels.fetch("1197557814135095296");
+async function sendReminder(form, client) {
     try {
+        const checkinChannel = await client.channels.fetch(form.checkinChannelId);
         if (form.pendingField !== "None") {
             await checkinChannel.send(
                 `Reminder to those who have not yet confirmed their attendance:\n${form.pendingField}`
@@ -134,23 +142,15 @@ async function sendReminder(form) {
             );
             console.log(`No reminder needed to be sent for check-in with message id: ${form.messageId}`);
         }
-
-        // Send reporting message
-        let reportingChannel = await client.channels.fetch("1197557758778679337")
-        await reportingChannel.send(`# Reports opened for ${form.title}\nYou have 24 hours to report your incidents.`);
-
     } catch (error) {
+        const logChannel = await client.channels.fetch("1197557758778679337").catch(() => null);
         await logChannel.send('Message to remind does not exist or is deleted: ' + error);
         console.log(`Failed to send reminder for check-in with message id: ${form.messageId}`)
     }
 }
 
-async function sendLog(form) {
-    const client = new Client({
-        intents: [GatewayIntentBits.Guilds, GatewayIntentBits.GuildMessages],
-    });
-    await client.login(token);
-    const logChannel = await client.channels.fetch(form.logChannelId);
+async function sendLog(form, client) {
+    const logChannel = await client.channels.fetch(form.logChannelId).catch((e) => console.log(e));
     try {
         if (form.declinedField !== "None") {
             await logChannel.send(
@@ -159,6 +159,17 @@ async function sendLog(form) {
         }
     } catch (error) {
         logChannel.send('Tried to log, but message does not exist or is deleted. Error: ', error);
+    }
+}
+
+async function sendReportsOpened(form, client) {
+    try {
+        let reportingChannel = await client.channels.fetch("1197557758778679337")
+        await reportingChannel.send(`# Reports opened for ${form.title}: ${form.countryName}\nYou have 24 hours to report your incidents.`);
+    } catch (error) {
+        const logChannel = await client.channels.fetch("1197557814135095296").catch(() => null);
+        await logChannel.send('Message to open reports does not exist or is deleted: ' + error);
+        console.log(`Failed to send report open message for check-in with message id: ${form.messageId}`)
     }
 }
 

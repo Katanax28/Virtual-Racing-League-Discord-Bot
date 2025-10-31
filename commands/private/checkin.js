@@ -280,16 +280,19 @@ module.exports = {
             let unixTimestamp;
             let reminderTime;
             let logTime;
+            let reportOpenTime;
             if (tier.value === 1) {
                 unixTimestamp = Math.floor(nextSunday.getTime() / 1000);
-                reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000);
-                logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000);
+                reminderTime = new Date(nextSunday.getTime() - 48 * 60 * 60 * 1000); // 48h before race start
+                logTime = new Date(nextSunday.getTime() - 24 * 60 * 60 * 1000); // 24h before race start
+                reportOpenTime = new Date(nextSunday.getTime()); // at race start
                 console.log("Tier 1 activated, time:" + nextSunday.getTime())
             }
             if (tier.value === 24) {
                 unixTimestamp = Math.floor(nextSaturday.getTime() / 1000);
-                reminderTime = new Date(nextSaturday.getTime() - 48 * 60 * 60 * 1000);
-                logTime = new Date(nextSaturday.getTime() - 24 * 60 * 60 * 1000);
+                reminderTime = new Date(nextSaturday.getTime() - 48 * 60 * 60 * 1000); // 48h before race start
+                logTime = new Date(nextSaturday.getTime() - 24 * 60 * 60 * 1000); // 24h before race start
+                reportOpenTime = new Date(nextSaturday.getTime()); // at race start
                 console.log("Tier 24 activated, time:" + nextSaturday.getTime())
             }
 
@@ -347,6 +350,7 @@ module.exports = {
                 type: "init",
                 reminderTime: reminderTime.getTime(),
                 logTime: logTime.getTime(),
+                reportOpenTime: reportOpenTime.getTime(),
                 title: title,
                 countryName: countryName,
                 pendingField: pendingField,
