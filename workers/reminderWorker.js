@@ -164,7 +164,7 @@ async function sendLog(form, client) {
 
 async function sendReportsOpened(form, client) {
     try {
-        let reportingChannel = await client.channels.fetch("1197557758778679337")
+        let reportingChannel = await client.channels.fetch("781151107883466793")
         await reportingChannel.send(`# Reports opened for ${form.title}: ${form.countryName}\nYou have 24 hours to report your incidents.`);
     } catch (error) {
         const logChannel = await client.channels.fetch("1197557814135095296").catch(() => null);
