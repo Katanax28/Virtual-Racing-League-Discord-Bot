@@ -116,6 +116,27 @@ client.on("messageCreate", async (msg) => {
         console.log("Right. So I don't know how discord can render a member but not their permissions, but here it is, it happened anyways. This error prevented the bot from crashing but it is not your fault, it's just the discord API doing something that doesn't make sense.");
     }
 
+// Auto-answer race time questions
+    try {
+        const lowerContent = msg.content.toLowerCase();
+        const isRaceTimeQuestion =
+            msg.channel.name.includes('💬') &&
+            !msg.author.bot &&
+            msg.member &&
+            !msg.member.permissions.has(PermissionFlagsBits.Administrator) &&
+            !msg.member.permissions.has(PermissionFlagsBits.BanMembers) &&
+            lowerContent.includes('race') &&
+            (lowerContent.includes('when') || lowerContent.includes('what time'));
+
+        if (isRaceTimeQuestion) {
+            await msg.reply(
+                `We race on Sundays at <t:1662912000:t>\n*These times are displayed in your own timezone, and they are subject to change if they collide with IRL F1 races*`
+            );
+        }
+    } catch (error) {
+        console.error('Error handling race time auto-response:', error);
+    }
+
 // Woah Prizm
     const content = msg.content.toLowerCase();
     if (content.includes("woah")) {

@@ -1,5 +1,6 @@
 // events/interactionCreate.js
 const { editInteractionReply } = require('../commands/private/checkin.js');
+const { ButtonBuilder, ActionRowBuilder, ButtonStyle, PermissionFlagsBits } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
 const workerManager = require('../workers/workerManager');
@@ -39,10 +40,72 @@ module.exports = (client) => {
 
         // Button input
         if (interaction.isButton()) {
+
+            // Cancel: update the ephemeral confirmation message in place
+            if (interaction.customId === "delete_checkin_cancel") {
+                await interaction.deferUpdate().catch(() => {});
+                await interaction.editReply({ content: "Deletion cancelled.", components: [] }).catch(console.error);
+                return;
+            }
+
+            // Confirm delete: do the actual deletion
+            if (interaction.customId.startsWith("delete_checkin_confirm:")) {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                    await interaction.deferUpdate().catch(() => {});
+                    await interaction.editReply({ content: "You do not have permission to delete this check-in.", components: [] }).catch(console.error);
+                    return;
+                }
+                await interaction.deferUpdate().catch(() => {});
+                const messageId = interaction.customId.split(":")[1];
+                try {
+                    const data = fs.readFileSync(scheduleDataPath, 'utf8');
+                    const allScheduleData = JSON.parse(data);
+                    const entry = allScheduleData.find(item => item.id === messageId);
+                    workerManager.removeWorker(messageId);
+                    const updatedScheduleData = allScheduleData.filter(item => item.id !== messageId);
+                    fs.writeFileSync(scheduleDataPath, JSON.stringify(updatedScheduleData, null, 2));
+                    if (entry) {
+                        const checkinChannel = await client.channels.fetch(entry.checkinChannelId).catch(console.error);
+                        if (checkinChannel) {
+                            const checkinMessage = await checkinChannel.messages.fetch(messageId).catch(console.error);
+                            if (checkinMessage) await checkinMessage.delete().catch(console.error);
+                        }
+                    }
+                } catch (error) {
+                    console.error('Error during check-in deletion:', error);
+                    await interaction.editReply({ content: "An error occurred while deleting the check-in.", components: [] }).catch(console.error);
+                    return;
+                }
+                await interaction.editReply({ content: "Check-in deleted.", components: [] }).catch(console.error);
+                return;
+            }
+
             await interaction.deferReply({ephemeral: true}).catch(() => {});
 
             // Check what message the button was pressed on
             const buttonPressMessage = await interaction.message.fetch().catch(console.error);
+
+            // First delete press: show ephemeral confirmation with confirm/cancel buttons
+            if (interaction.customId === "delete_checkin") {
+                if (!interaction.member.permissions.has(PermissionFlagsBits.Administrator)) {
+                    await editInteractionReply(interaction, "You do not have permission to delete this check-in.");
+                    return;
+                }
+                const confirmButton = new ButtonBuilder()
+                    .setCustomId(`delete_checkin_confirm:${buttonPressMessage.id}`)
+                    .setLabel("Confirm Delete")
+                    .setStyle(ButtonStyle.Danger);
+                const cancelButton = new ButtonBuilder()
+                    .setCustomId("delete_checkin_cancel")
+                    .setLabel("Cancel")
+                    .setStyle(ButtonStyle.Secondary);
+                const confirmRow = new ActionRowBuilder().addComponents(confirmButton, cancelButton);
+                await interaction.editReply({
+                    content: "Are you sure you want to delete this check-in? This cannot be undone.",
+                    components: [confirmRow],
+                }).catch(console.error);
+                return;
+            }
 
             try {
                 const data = fs.readFileSync(scheduleDataPath, 'utf8');
@@ -81,9 +144,9 @@ module.exports = (client) => {
             if (logTime == null || currentDate > logTime) {
                 const member = await fetchMember(interaction.guild, interaction.user.id).catch(console.error);
                 await editInteractionReply(interaction, "The deadline for checking in has passed. If you think something is wrong, please message an admin.");
-                console.log(`User <@${member.user.id}> (${member.user.username}) tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
+                console.log(`<@${member.user.id}> (${member.user.username}) tried to press ${interaction.customId}. Interaction ignored.`);
                 const logChannel = await client.channels.fetch(logChannelId).catch(console.error);
-                await logChannel.send(`User <@${member.user.id}> (${member.user.username}) tried to press ${interaction.customId}. However, the logtime passed, so the interaction is ignored.`);
+                await logChannel.send(`<@${member.user.id}> (${member.user.username}) tried to press ${interaction.customId}. Interaction ignored.`);
                 return;
             }
 

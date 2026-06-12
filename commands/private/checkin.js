@@ -257,6 +257,11 @@ module.exports = {
             const decline = createButton("decline", "Decline", ButtonStyle.Danger);
 
             const row = new ActionRowBuilder().addComponents(accept, decline);
+            const deleteButton = new ButtonBuilder()
+                .setCustomId("delete_checkin")
+                .setEmoji("🗑️")
+                .setStyle(ButtonStyle.Secondary);
+            const deleteRow = new ActionRowBuilder().addComponents(deleteButton);
 
             // List the members that need to accept the check-in
             const pendingMembers = mentionMatches.map((mention) => `${mention}`);
@@ -327,7 +332,7 @@ module.exports = {
                 .send({
                     content: `<@&${requiredRoleId}>`,
                     embeds: [embed],
-                    components: [row],
+                    components: [row, deleteRow],
                 })
                 .then((message) => {
                     embedMessage = message;
